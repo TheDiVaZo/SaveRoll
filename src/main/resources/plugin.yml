@@ -1,0 +1,9 @@
+name: SaveRoll
+version: '${project.version}'
+main: saveroll.saveroll.SaveRoll
+api-version: 1.17
+prefix: SaveRoll
+loadbefore: [ PlaceholderAPI ]
+softdepend: [ PlaceholderAPI ]
+authors: [ TheDiVaZo ]
+description: Данный плагин вычесляет ролл игрока и сохраняет пользовательский ролл.

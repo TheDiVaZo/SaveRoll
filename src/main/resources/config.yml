@@ -14,38 +14,23 @@ mysql:
     #и другие...
 
 rolls:
-  Example:
-    calc: ["COMMAND"]
-    #"COMMAND" - значение устанаволивается командой (/rset Example 10 TheDiVaZo)
-    #"ARMOR" - значение вычесляется на основе брони игрока.
-    #"HORSE" - значение вычесляется на основе лошади игрока
-    #[PARAM1, PARAM2] - вычесляется PARAM1 и PARAM2 (если есть) и складываются.
-    placeholder: "example" #-> %saveroll_example%
-  Defence:
-    calc: ["COMMAND", "ARMOR"]
-    placeholder: "defence"
-  Attack:
-    calc: ["COMMAND", "HORSE"]
-    placeholder: "attack"
-  Escape:
-    calc: ["COMMAND"]
-    placeholder: "escape"
+  defend:
+    DEFAULT: 0 #ролл по умолчанию для всех.
+    NETHERITE_ARMOR: 0 #+ролл за фулл незерит
+    IRON_ARMOR: 0 #+ролл за фулл железо
+    GOLDEN_ARMOR: 0 #+ролл за фулл золото
+    LEATHER_ARMOR: 0 #+ролл за фулл кожу
+    CHAINMAIL_ARMOR: 0 #+ролл за фулл кольчугу
+    DIAMOND_ARMOR: 0 #+ролл за фулл алмазы
+  attack:
+    DEFAULT: 0
+    HORSE: 0 #+ролл за лошадь.
+  escape: #побег
+    DEFAULT: 0
+    HORSE: 0 #+ролл за лошадь.
 
-settings:
-  calcValue:
-    #ARMOR: 2 - за любую броню дают +2
-    ARMOR:
-      FULL_NETHERITE: 4 #фулл незеритка, дает +4 при полном комплекте
-      FULL_DIAMOND: 3 #фулл алмазка, тоже самое
-      FULL_IRON: 2  #фулл железка
-      FULL_GOLDEN: 1 #улл золотая
-      FULL_CHAINMAIL: 1 #фулл кольчуга
-      FULL_LEATHER: 1 #фулл коженная.
-      #DIAMOND_BOOTS: 1 - дает +1 при ношении ботинок. FULL_DIAMOND не будет работать, если указан этот параметр.
-      #добавлю поддержку NBT потом.
-    HORSE: 3 #просто за наличие коня +3  роллу
-    #HORSE:
-      #LEATHER: 2 #если у коня есть броня, то +4 к роллу
+
+
 
 
 

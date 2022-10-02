@@ -4,7 +4,13 @@ package saveroll.logging;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public record JULHandler(Logger logger) implements LoggerHandler {
+public class JULHandler implements LoggerHandler {
+
+        private Logger logger;
+
+        public JULHandler(Logger logger) {
+                this.logger = logger;
+        }
 
 @Override
 public void debug(Object message, Throwable throwable, Object... placeholders) {

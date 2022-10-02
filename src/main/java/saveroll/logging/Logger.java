@@ -1,4 +1,4 @@
-package saveroll.saveroll.logging;
+package saveroll.logging;
 
 public final class Logger {
 

@@ -4,9 +4,9 @@
 varsion: 1.0 #version of config
 
 mysql:
-  server_url: "jdbc:mysql://127.0.0.1:3306/simpsons"
-  name: "Oleg"
-  pass: "0000"
+  server_url: "jdbc:mysql://127.0.0.1/basedata"
+  name: "username"
+  pass: "password"
   dataSourceProperty:
     cachePrepStmts: true
     prepStmtCacheSize: 250
@@ -22,12 +22,15 @@ rolls:
     LEATHER_ARMOR: 0 #+ролл за фулл кожу
     CHAINMAIL_ARMOR: 0 #+ролл за фулл кольчугу
     DIAMOND_ARMOR: 0 #+ролл за фулл алмазы
+    #placeholder -> %rollplus_denend%
   attack:
     DEFAULT: 0
     HORSE: 0 #+ролл за лошадь.
+    #placeholder -> %rollplus_attack%
   escape: #побег
     DEFAULT: 0
     HORSE: 0 #+ролл за лошадь.
+    #placeholder -> %rollplus_escape%
 
 
 

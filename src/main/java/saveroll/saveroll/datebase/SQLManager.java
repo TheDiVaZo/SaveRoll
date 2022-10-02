@@ -149,6 +149,7 @@ public class SQLManager {
 
     public void addUser(String player, int attack_roll, int defend_roll, int escape_roll) {
         try {
+            createTable();
             request("INSERT IGNORE INTO "+tableName+" ("+tablePlayerName+","+tablePlayerCustomRollAttack+","+tablePlayerCustomRollDefend+","+tablePlayerCustomRollEscape+") VALUES('"+player+"', "+attack_roll+", "+defend_roll+", "+escape_roll+");");
         } catch (SQLException e) {
             e.printStackTrace();

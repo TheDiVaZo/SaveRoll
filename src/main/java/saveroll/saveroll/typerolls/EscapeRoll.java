@@ -11,8 +11,9 @@ public class EscapeRoll extends TypesRoll{
 
     @Override
     public int calculateRoll(Player player) {
-        if(!player.isInsideVehicle()) return 0;
-        if(player.getVehicle().getType().equals(EntityType.HORSE)) return boosts.get("HORSE");
-        else return 0;
+        int plusRoll = boosts.get("DEFAULT");
+        if(!player.isInsideVehicle()) return plusRoll;
+        if(player.getVehicle().getType().equals(EntityType.HORSE)) plusRoll += boosts.get("HORSE");
+        return plusRoll;
     }
 }

@@ -10,10 +10,9 @@ public class AttackRoll extends TypesRoll{
 
     @Override
     public int calculateRoll(Player player) {
-        int plusRoll = 0;
-        if(player.isInsideVehicle()) {
-            if (player.getVehicle().getType().equals(EntityType.HORSE)) plusRoll += boosts.get("HORSE");
-        }
+        int plusRoll = boosts.get("DEFAULT");
+        if(!player.isInsideVehicle()) return plusRoll;
+        if (player.getVehicle().getType().equals(EntityType.HORSE)) plusRoll += boosts.get("HORSE");
         return plusRoll;
     }
 }

@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SQLManager {
     private String url;
@@ -26,6 +27,11 @@ public class SQLManager {
         put("cachePrepStmts", "true");
         put("prepStmtCacheSize", "250");
         put("prepStmtCacheSqlLimit", "2048");}};
+
+    @FunctionalInterface
+    interface Callback {
+        void call(ResultSet resultSet) throws SQLException;
+    }
 
     public String getUrl() {
         return url;
@@ -94,12 +100,14 @@ public class SQLManager {
         }
     }
 
-    private ResultSet requestQuery(String sql) throws SQLException {
+    private void requestQuery(String sql, Callback callback) {
         if(ds==null) createConnect();
-        Connection conn = ds.getConnection();
-        Statement statement = conn.createStatement();
-        return statement.executeQuery(sql);
-
+        try(Connection conn = ds.getConnection()) {
+            Statement statement = conn.createStatement();
+            callback.call(statement.executeQuery(sql));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public int setRoll(String player, String rollName, int rollNumber) throws SQLException {
@@ -128,19 +136,17 @@ public class SQLManager {
     }
 
     public int[] getRollFromUser(String player) {
-        try(ResultSet resultSet = requestQuery("SELECT "+tablePlayerCustomRollAttack+", "+tablePlayerCustomRollDefend+", "+tablePlayerCustomRollEscape+" FROM "+tableName+" WHERE "+tablePlayerName+"='"+player+"'")) {
-            int[] rolls = new int[3];
-            while(resultSet.next()){
-                //Retrieve by column name
-                rolls[0] = resultSet.getInt(tablePlayerCustomRollAttack);
-                rolls[1] = resultSet.getInt(tablePlayerCustomRollDefend);
-                rolls[2] = resultSet.getInt(tablePlayerCustomRollEscape);
-            }
-            return rolls;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return new int[3];
-        }
+        int[] rolls = new int[3];
+        requestQuery("SELECT "+tablePlayerCustomRollAttack+", "+tablePlayerCustomRollDefend+", "+tablePlayerCustomRollEscape+" FROM "+tableName+" WHERE "+tablePlayerName+"='"+player+"'",
+                resultSet -> {
+                    while(resultSet.next()){
+                        //Retrieve by column name
+                        rolls[0] = resultSet.getInt(tablePlayerCustomRollAttack);
+                        rolls[1] = resultSet.getInt(tablePlayerCustomRollDefend);
+                        rolls[2] = resultSet.getInt(tablePlayerCustomRollEscape);
+                    }
+                });
+        return rolls;
     }
 
     public void addUser(String player) {
@@ -165,10 +171,8 @@ public class SQLManager {
     }
 
     public boolean checkUser(String player) {
-        try (ResultSet nameOfUser = requestQuery("SELECT * FROM "+tableName+" WHERE "+tablePlayerName+" = '"+player+"'")){
-            return nameOfUser.next();
-        } catch (SQLException e) {
-            return false;
-        }
+        AtomicBoolean checkUser = new AtomicBoolean(false);
+        requestQuery("SELECT * FROM "+tableName+" WHERE "+tablePlayerName+" = '"+player+"'", resultSet -> checkUser.set(resultSet.next()));
+        return checkUser.get();
     }
 }

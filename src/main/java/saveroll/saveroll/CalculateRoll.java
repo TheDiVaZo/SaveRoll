@@ -10,11 +10,6 @@ import java.util.Objects;
 
 public class CalculateRoll extends PlaceholderExpansion {
 
-    private ConfigManager configManager;
-
-    public CalculateRoll(ConfigManager configManager) {
-        this.configManager = configManager;
-    }
 
     @Override
     public String getAuthor() {
@@ -34,13 +29,22 @@ public class CalculateRoll extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
         if(Objects.isNull(player)) return params;
-        int[] plusRolls = configManager.getSqlManager().getRollFromUser(player.getName());
-        if(params.equalsIgnoreCase("attack"))
-            return String.valueOf(plusRolls[0] + configManager.attackRoll.calculateRoll(player));
-        else if(params.equalsIgnoreCase("defend"))
-            return String.valueOf(plusRolls[1] + configManager.defendRoll.calculateRoll(player));
-        else if (params.equalsIgnoreCase("escape"))
-            String.valueOf(plusRolls[2] + configManager.escapeRoll.calculateRoll(player));
+        int[] plusRolls = SaveRoll.getInstance().getConfigManager().getSqlManager().getRollFromUser(player.getName());
+        if(params.equalsIgnoreCase("attack")) {
+            int rollFinal = plusRolls[0] + SaveRoll.getInstance().getConfigManager().attackRoll.calculateRoll(player);
+            String sign = rollFinal >= 0 ? "+":"";
+            return sign + rollFinal;
+        }
+        else if(params.equalsIgnoreCase("defend")) {
+            int rollFinal = plusRolls[1] + SaveRoll.getInstance().getConfigManager().defendRoll.calculateRoll(player);
+            String sign = rollFinal >= 0 ? "+":"";
+            return sign + rollFinal;
+        }
+        else if (params.equalsIgnoreCase("escape")) {
+            int rollFinal = plusRolls[2] + SaveRoll.getInstance().getConfigManager().escapeRoll.calculateRoll(player);
+            String sign = rollFinal >= 0 ? "+":"";
+            return sign + rollFinal;
+        }
         return params;
     }
 }

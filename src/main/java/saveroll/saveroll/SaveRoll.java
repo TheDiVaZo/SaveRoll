@@ -2,6 +2,8 @@ package saveroll.saveroll;
 
 import co.aikar.commands.PaperCommandManager;
 import com.google.common.collect.ImmutableList;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
@@ -21,8 +23,12 @@ public final class SaveRoll extends JavaPlugin {
         Logger.init(new JULHandler(getLogger()));
         Logger.info("Starting...");
         saveDefaultConfig();
+        getConfigManager().updateConfiguration(getConfig());
         registerCommands();
         instance = this;
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new CalculateRoll().register();
+        }
     }
 
     public static SaveRoll getInstance() {
@@ -35,7 +41,7 @@ public final class SaveRoll extends JavaPlugin {
     }
 
     public void reloadPlugin() {
-        saveConfig();
+        reloadConfig();
         configManager.updateConfiguration(getConfig());
         Logger.info("Config has been reloaded");
     }

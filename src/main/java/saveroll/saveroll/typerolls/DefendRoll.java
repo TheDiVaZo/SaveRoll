@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static org.bukkit.Material.*;
 
@@ -50,10 +51,9 @@ public class DefendRoll extends TypesRoll{
         ItemStack leggins = player.getInventory().getLeggings();
         ItemStack boots = player.getInventory().getBoots();
 
-        int plusOfRoll = 0;
-
+        int plusOfRoll = boosts.get("DEFAULT");
+        if(Objects.isNull(helmet) || Objects.isNull(chestplate) || Objects.isNull(leggins) || Objects.isNull(boots)) return plusOfRoll;
         Material[] armorPlayer = new Material[]{player.getInventory().getHelmet().getType(), player.getInventory().getChestplate().getType(), player.getInventory().getLeggings().getType(), player.getInventory().getBoots().getType()};
-
         if(Arrays.equals(armorPlayer, FullArmor.getArmorForMaterial(ArmorMaterial.CHAINMAIL_ARMOR))) plusOfRoll+=getBoost(ArmorMaterial.CHAINMAIL_ARMOR.toString());
         else if(Arrays.equals(armorPlayer, FullArmor.getArmorForMaterial(ArmorMaterial.GOLDEN_ARMOR))) plusOfRoll+=getBoost(ArmorMaterial.GOLDEN_ARMOR.toString());
         else if(Arrays.equals(armorPlayer, FullArmor.getArmorForMaterial(ArmorMaterial.IRON_ARMOR))) plusOfRoll+=getBoost(ArmorMaterial.IRON_ARMOR.toString());

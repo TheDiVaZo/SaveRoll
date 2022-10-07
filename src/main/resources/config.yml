@@ -36,8 +36,11 @@ bonusrolls:
         slots: "off_hand"
         fill-slot: 1
         additional-roll: 1
-      potion:
-        speed: 1
+    potion:
+      speed:
+        level: 1
+        additional-roll: 1
+
 
 
 

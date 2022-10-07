@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
 
@@ -27,7 +28,7 @@ public final class SaveRoll extends JavaPlugin {
         registerCommands();
         instance = this;
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new CalculateRoll().register();
+
         }
     }
 

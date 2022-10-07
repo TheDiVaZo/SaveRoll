@@ -13,24 +13,33 @@ mysql:
     prepStmtCacheSqlLimit: 2048
     #и другие...
 
-rolls:
+bonusrolls:
   defend:
-    DEFAULT: 0 #ролл по умолчанию для всех.
-    NETHERITE_ARMOR: 0 #+ролл за фулл незерит
-    IRON_ARMOR: 0 #+ролл за фулл железо
-    GOLDEN_ARMOR: 0 #+ролл за фулл золото
-    LEATHER_ARMOR: 0 #+ролл за фулл кожу
-    CHAINMAIL_ARMOR: 0 #+ролл за фулл кольчугу
-    DIAMOND_ARMOR: 0 #+ролл за фулл алмазы
-    #placeholder -> %rollplus_denend%
-  attack:
-    DEFAULT: 0
-    HORSE: 0 #+ролл за лошадь.
-    #placeholder -> %rollplus_attack%
-  escape: #побег
-    DEFAULT: 0
-    HORSE: 0 #+ролл за лошадь.
-    #placeholder -> %rollplus_escape%
+    placeholder: "defend" #-> %rollplus_defend%
+    equip:
+      hard-armor: #любое название
+        items: ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"]
+        #id предметов из майнкрафта.
+        # "iron_helmet" - железный шлем может присутствовать, а может и нет в одном из доступных слотов
+        # "*iron_helmet" - железный шлем обязательно должен присутствовать в одном из доступных слотов
+        # "!iron_helmet" - железный шлем не должен присутствовать в одном из доступных слотов
+        slots: ["FEED", "CHEST", "HEAD", "LEGS"] #"FEED", "CHEST", "HEAD", "LEGS", "OFF_HAND", "HAND", "INVENTORY"
+        # "helmet" - заполнение слота зависит от настроек fill-slot
+        # "*helmet" - слот шлема обязательно должен быть заполнен и не зависит от fill-slot
+        # "!helmet" - слот шлема должен оставаться пустым и не зависит от fill-slot
+        fill-slot: 3 #кол-во слотов из slots, которые должны быть заполнены, чтобы сработал бонус
+        # "all" - все слоты из slots
+        # цифра - кол-во слотов для заполнения. Не должен привышать длинну списка slots
+        additional-roll: 3 #прибавление к роллам
+      shield:
+        items: "shield"
+        slots: "off_hand"
+        fill-slot: 1
+        additional-roll: 1
+      potion:
+        speed: 1
+
+
 
 
 

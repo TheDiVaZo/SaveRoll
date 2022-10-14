@@ -11,8 +11,6 @@ public abstract class Bonus {
 
     public abstract int calculateRoll(Player player);
 
-    public abstract Bonus generateBonus();
-
     public String getName() {
         return name;
     }

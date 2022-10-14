@@ -1,16 +1,15 @@
 package saveroll.saveroll.roll;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import saveroll.saveroll.bonus.EquipmentBonus;
-import saveroll.saveroll.bonus.PotionBonus;
+import saveroll.saveroll.bonus.EffectentBonus;
 import saveroll.saveroll.bonus.RiderBonus;
 
 public class Roll {
     private String name;
     private String placeholder;
     private EquipmentBonus equipmentBonus;
-    private PotionBonus potionBonus;
+    private EffectentBonus effectentBonus;
     private RiderBonus riderBonus;
 
     public Roll(String name, String placeholder) {
@@ -26,12 +25,12 @@ public class Roll {
         this.equipmentBonus = equipmentBonus;
     }
 
-    public PotionBonus getPotionBonus() {
-        return potionBonus;
+    public EffectentBonus getPotionBonus() {
+        return effectentBonus;
     }
 
-    public void setPotionBonus(PotionBonus potionBonus) {
-        this.potionBonus = potionBonus;
+    public void setPotionBonus(EffectentBonus effectentBonus) {
+        this.effectentBonus = effectentBonus;
     }
 
     public RiderBonus getRiderBonus() {
@@ -43,6 +42,6 @@ public class Roll {
     }
 
     public int calculateRoll(Player player) {
-        return equipmentBonus.calculateRoll(player) + potionBonus.calculateRoll(player) + riderBonus.calculateRoll(player);
+        return equipmentBonus.calculateRoll(player) + effectentBonus.calculateRoll(player) + riderBonus.calculateRoll(player);
     }
 }

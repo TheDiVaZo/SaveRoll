@@ -2,23 +2,24 @@ package saveroll.saveroll.bonus;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.NotNull;
 import saveroll.logging.Logger;
 import saveroll.saveroll.ImportanceLevelObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public class EquipmentBonus extends Bonus{
     
     private static final char REQUIED_SIGN = '*';
     private static final char BAN_SIGN = '!';
 
-    protected static class RequiedItem extends ImportanceLevelObject<Material> {
+    private final ArrayList<ItemBonus> itemBonuses;
 
-        public RequiedItem(Material item) {
+    protected static class RequiredItem extends ImportanceLevelObject<Material> {
+
+        public RequiredItem(Material item) {
             super(item);
         }
 
@@ -51,9 +52,9 @@ public class EquipmentBonus extends Bonus{
         }
     }
 
-    protected static class RequiedSlot extends ImportanceLevelObject<EquipmentSlotWrapper> {
+    protected static class RequiredSlot extends ImportanceLevelObject<EquipmentSlotWrapper> {
 
-        public RequiedSlot(EquipmentSlotWrapper item) {
+        public RequiredSlot(EquipmentSlotWrapper item) {
             super(item);
         }
 
@@ -89,48 +90,61 @@ public class EquipmentBonus extends Bonus{
     protected enum EquipmentSlotWrapper {
         FEED {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return EquipmentSlot.FEET;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                ItemStack feed = inventory.getBoots();
+                if(Objects.isNull(feed)) return false;
+                return feed.getType().equals(material);
             }
         },
         CHEST {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return EquipmentSlot.CHEST;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                ItemStack chest = inventory.getChestplate();
+                if(Objects.isNull(chest)) return false;
+                return chest.getType().equals(material);
             }
         },
         HEAD {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return EquipmentSlot.HEAD;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                ItemStack head = inventory.getHelmet();
+                if(Objects.isNull(head)) return false;
+                return head.getType().equals(material);
             }
         },
         LEGS {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return EquipmentSlot.LEGS;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                ItemStack legs = inventory.getLeggings();
+                if(Objects.isNull(legs)) return false;
+                return legs.getType().equals(material);
             }
         },
         HAND {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return EquipmentSlot.HAND;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                ItemStack hand = inventory.getItemInMainHand();
+                return hand.getType().equals(material);
             }
         },
         OFF_HAND {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return EquipmentSlot.OFF_HAND;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                ItemStack offHand = inventory.getItemInOffHand();
+                return offHand.getType().equals(material);
             }
         },
         INVENTORY {
             @Override
-            public EquipmentSlot getEquipmentSlot() {
-                return null;
+            public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
+                for (ItemStack storageContent : inventory.getStorageContents()) {
+                    if(storageContent.getType().equals(material)) return true;
+                }
+                return false;
             }
         };
 
-        public abstract EquipmentSlot getEquipmentSlot();
+        public abstract boolean isEquipMaterial(PlayerInventory inventory, Material material);
     }
 
     protected static class ItemBonus {
@@ -149,7 +163,7 @@ public class EquipmentBonus extends Bonus{
         private static ArrayList<ImportanceLevelObject<Material>> generateItems(ArrayList<String> items) {
             ArrayList<ImportanceLevelObject<Material>> materialItems = new ArrayList<>();
             for (String itemName : items) {
-                if(itemName == null) continue;
+                if(Objects.isNull(itemName)) continue;
                 char signImportance = itemName.charAt(0);
                 itemName = itemName.replaceFirst("^([\\!\\*])+", "");
                 Material itemMaterial;
@@ -159,7 +173,7 @@ public class EquipmentBonus extends Bonus{
                     Logger.error("Материал "+itemName+" не является действительным! Пожалуйста, проверьте конфиг на наличие опечаток.");
                     continue;
                 }
-                if(signImportance == REQUIED_SIGN) materialItems.add(new RequiedItem(itemMaterial));
+                if(signImportance == REQUIED_SIGN) materialItems.add(new RequiredItem(itemMaterial));
                 else if(signImportance == BAN_SIGN) materialItems.add(new BanItem(itemMaterial));
                 else materialItems.add(new NeutralItem(itemMaterial));
             }
@@ -178,7 +192,7 @@ public class EquipmentBonus extends Bonus{
                     Logger.error("Слот "+slotName+" не является действительным! Пожалуйста, проверьте конфиг на наличие опечаток.");
                     continue;
                 }
-                if(signImportance == REQUIED_SIGN) equipmentWrapperSlots.add(new RequiedSlot(equipmentWrapperSlot));
+                if(signImportance == REQUIED_SIGN) equipmentWrapperSlots.add(new RequiredSlot(equipmentWrapperSlot));
                 else if(signImportance == BAN_SIGN) equipmentWrapperSlots.add(new BanSlot(equipmentWrapperSlot));
                 else equipmentWrapperSlots.add(new NeutralSlot(equipmentWrapperSlot));
             }
@@ -187,6 +201,43 @@ public class EquipmentBonus extends Bonus{
         
         public static ItemBonus generateItemBonus(ArrayList<String> items, ArrayList<String> slots, int fillSlots, int additionalRoll) {
             return new ItemBonus(generateItems(items), generateSlots(slots), fillSlots, additionalRoll);
+        }
+
+        private boolean isRequiredItemInSlotForPlayer(PlayerInventory inventory, EquipmentSlotWrapper slot ,Material item) {
+            return slot.isEquipMaterial(inventory, item);
+        }
+
+        public int getBonusFromPlayer(Player player) {
+            PlayerInventory inventory = player.getInventory();
+            int requiredMaterial = (int) items.stream().filter(ImportanceLevelObject::isRequied).count();
+            int requiredSlots = (int) slots.stream().filter(ImportanceLevelObject::isRequied).count();
+
+            int countFillRequiredMaterial = 0;
+            int countFillRequiredSlots = 0;
+
+            int countFillSlotsFromItems = 0;
+
+            int maybeAdditionalRoll = this.additionalRoll;
+
+            for (ImportanceLevelObject<EquipmentSlotWrapper> slot : slots) {
+                for (ImportanceLevelObject<Material> item : items) {
+                    if((slot.isRequied() || slot.isNeutral()) && (item.isRequied() || item.isNeutral()) && isRequiredItemInSlotForPlayer(inventory, slot.getObject(), item.getObject())) {
+                        if(slot.isRequied()) countFillRequiredSlots++;
+                        if(item.isRequied()) countFillRequiredMaterial++;
+                        break;
+                    }
+                    else if((slot.isBan() || item.isBan()) && isRequiredItemInSlotForPlayer(inventory, slot.getObject(), item.getObject())) maybeAdditionalRoll = 0;
+
+                }
+            }
+
+            if(requiredMaterial > countFillRequiredMaterial) maybeAdditionalRoll = 0;
+            if(requiredSlots > countFillRequiredSlots) maybeAdditionalRoll = 0;
+            if(countFillSlotsFromItems > fillSlots) maybeAdditionalRoll = 0;
+
+            return maybeAdditionalRoll;
+
+
         }
 
         @Override
@@ -203,18 +254,31 @@ public class EquipmentBonus extends Bonus{
         }
     }
 
-    protected EquipmentBonus() {
+    protected EquipmentBonus(ArrayList<ItemBonus> itemBonuses) {
         super("equip");
+        this.itemBonuses = itemBonuses;
     }
 
 
     @Override
     public int calculateRoll(Player player) {
-        return 0;
+        return itemBonuses.stream().map(itemBonus -> itemBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 
-    @Override
-    public Bonus generateBonus() {
-        return null;
+    public interface ConfigEquipItemsParam {
+        @NotNull ArrayList<String> getItems();
+        @NotNull ArrayList<String> getSlots();
+        int getFillSlots();
+        int getAdditionalRoll();
+    }
+
+    @NotNull public static Bonus generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) {
+        ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
+        EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
+        for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {
+            ItemBonus itemBonus = ItemBonus.generateItemBonus(equipItemsParam.getItems(), equipItemsParam.getSlots(), equipItemsParam.getFillSlots(), equipItemsParam.getAdditionalRoll());
+            itemBonusesGenerate.add(itemBonus);
+        }
+        return bonus;
     }
 }

@@ -1,19 +1,17 @@
 package saveroll.saveroll.bonus;
 
-import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionEffectTypeWrapper;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +23,7 @@ class EffectentBonusTest {
     void calculateRoll() {
         EffectentBonus.ConfigPotionEffectParam configPotionEffectParam = new EffectentBonus.ConfigPotionEffectParam() {
             @Override
-            public @NotNull ArrayList<String> getEffects() {
+            public @NotNull List<String> getEffects() {
                 return new ArrayList<>(){{add("*speed:1");add("!slowness:1");add("STRENGTH:1");add("INVISIBILITY:1");}};
             }
 

@@ -160,7 +160,7 @@ public class EquipmentBonus extends Bonus{
             this.additionalRoll = additionalRoll;
         }
         
-        private static ArrayList<ImportanceLevelObject<Material>> generateItems(ArrayList<String> items) {
+        private static ArrayList<ImportanceLevelObject<Material>> generateItems(@NotNull List<String> items) {
             ArrayList<ImportanceLevelObject<Material>> materialItems = new ArrayList<>();
             for (String itemName : items) {
                 if(Objects.isNull(itemName)) continue;
@@ -179,7 +179,7 @@ public class EquipmentBonus extends Bonus{
             }
             return materialItems;
         }
-        private static ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> generateSlots(ArrayList<String> slots) {
+        private static ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> generateSlots(@NotNull List<String> slots) {
             ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> equipmentWrapperSlots = new ArrayList<>();
             for (String slotName : slots) {
                 if(slotName == null) continue;
@@ -199,7 +199,7 @@ public class EquipmentBonus extends Bonus{
             return equipmentWrapperSlots;
         }
         
-        public static ItemBonus generateItemBonus(ArrayList<String> items, ArrayList<String> slots, int fillSlots, int additionalRoll) {
+        public static ItemBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) {
             return new ItemBonus(generateItems(items), generateSlots(slots), fillSlots, additionalRoll);
         }
 
@@ -265,14 +265,48 @@ public class EquipmentBonus extends Bonus{
         return itemBonuses.stream().map(itemBonus -> itemBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 
-    public interface ConfigEquipItemsParam {
-        @NotNull ArrayList<String> getItems();
-        @NotNull ArrayList<String> getSlots();
+    public interface ConfigEquipItemsParam extends ConfigParam {
+        @NotNull List<String> getItems();
+        @NotNull List<String> getSlots();
         int getFillSlots();
         int getAdditionalRoll();
     }
 
+    public static ConfigEquipItemsParam generateConfig(List<String> items, List<String> slots, int fillSlots, int additionalRoll) {
+        return new ConfigEquipItemsParam() {
+            @Override
+            public @NotNull List<String> getItems() {
+                return items;
+            }
+
+            @Override
+            public @NotNull List<String> getSlots() {
+                return slots;
+            }
+
+            @Override
+            public int getFillSlots() {
+                return fillSlots;
+            }
+
+            @Override
+            public int getAdditionalRoll() {
+                return additionalRoll;
+            }
+        };
+    }
+
     @NotNull public static Bonus generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) {
+        ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
+        EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
+        for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {
+            ItemBonus itemBonus = ItemBonus.generateItemBonus(equipItemsParam.getItems(), equipItemsParam.getSlots(), equipItemsParam.getFillSlots(), equipItemsParam.getAdditionalRoll());
+            itemBonusesGenerate.add(itemBonus);
+        }
+        return bonus;
+    }
+
+    @NotNull public static Bonus generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) {
         ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
         EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {

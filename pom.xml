@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>saveRoll</groupId>
-    <artifactId>saveRoll</artifactId>
-    <version>1.7-SNAPSHOT</version>
+    <groupId>SaveRoll</groupId>
+    <artifactId>SaveRoll</artifactId>
+    <version>1.8-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -15,7 +15,7 @@
     <description>Данный плагин вычесляет ролл игрока и сохраняет пользовательский ролл.</description>
     <properties>
         <powermock.version>1.6.6</powermock.version>
-        <java.version>11</java.version>
+        <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -86,10 +86,6 @@
 
     <repositories>
         <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
@@ -101,42 +97,47 @@
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
+        <repository>
+            <id>resources</id>
+            <url>file:///${project.basedir}/libs/</url>
+        </repository>
     </repositories>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.spigotmc</groupId>-->
-<!--            <artifactId>spigot-api</artifactId>-->
-<!--            <version>1.17.1-R0.1-SNAPSHOT</version>-->
-<!--            &lt;!&ndash;scope>provided</scope&ndash;&gt;-->
-<!--        </dependency>-->
         <dependency>
-            <groupId>spigot</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/spigot-1.17.1.jar</systemPath>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.4</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>spigot</groupId>-->
+<!--            <artifactId>resources</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--            <systemPath>${project.basedir}/src/main/resources/spigot-1.17.1.jar</systemPath>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.2</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.30</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>mysql</groupId>-->
+<!--            <artifactId>mysql-connector-java</artifactId>-->
+<!--            <version>8.0.30</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>co.aikar</groupId>
             <artifactId>acf-paper</artifactId>
             <version>0.5.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>5.0.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

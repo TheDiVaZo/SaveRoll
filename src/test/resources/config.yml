@@ -14,8 +14,8 @@ mysql:
     #и другие...
 
 bonusrolls:
-  defend: # Из названия строится плейсхолдер - %rollplus_defend%
-    placeholder-text: "Вы кинули ролл на защиту %roll%" # то, что будет возвращать плейсхолдер. Если ролла у игрока нет, будет возвращена пустая строка.
+  defend:
+    placeholder: "defend" #-> %rollplus_defend%
     equip:
       hard-armor: #любое название
         items: ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"]

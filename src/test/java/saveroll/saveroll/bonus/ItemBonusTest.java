@@ -13,6 +13,7 @@ import saveroll.logging.Logger;
 import saveroll.saveroll.ImportanceLevelObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,12 +26,12 @@ class ItemBonusTest {
     void generateBonus() throws Exception {
         EquipmentBonus.ConfigEquipItemsParam configEquipArmors = new EquipmentBonus.ConfigEquipItemsParam() {
             @Override
-            public @NotNull ArrayList<String> getItems() {
+            public @NotNull List<String> getItems() {
                 return new ArrayList<>(){{add("DIAMOND_HELMET"); add("DIAMOND_BOOTS"); add("DIAMOND_CHESTPLATE"); add("LEATHER_CHESTPLATE");}};
             }
 
             @Override
-            public @NotNull ArrayList<String> getSlots() {
+            public @NotNull List<String> getSlots() {
                 return new ArrayList<>(){{add("*HEAD"); add("*FEED"); add("*CHEST");}};
             }
 
@@ -47,12 +48,12 @@ class ItemBonusTest {
 
         EquipmentBonus.ConfigEquipItemsParam configEquipShield = new EquipmentBonus.ConfigEquipItemsParam() {
             @Override
-            public @NotNull ArrayList<String> getItems() {
+            public @NotNull List<String> getItems() {
                 return new ArrayList<>(){{add("*SHIELD");}};
             }
 
             @Override
-            public @NotNull ArrayList<String> getSlots() {
+            public @NotNull List<String> getSlots() {
                 return new ArrayList<>(){{add("HAND"); add("OFF_HAND");}};
             }
 

@@ -14,23 +14,23 @@ mysql:
     #и другие...
 
 bonusrolls:
-  defend: # Из названия строится плейсхолдер - %rollplus_defend%
-    placeholder-text: "Вы кинули ролл на защиту %roll%" # то, что будет возвращать плейсхолдер. Если ролла у игрока нет, будет возвращена пустая строка.
+  defend:
+    placeholder: "defend" #-> %rollplus_defend%
     equip:
       hard-armor: #любое название
-        items: ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"]
+        items: ["diamond_boots"]
         #id предметов из майнкрафта.
         # "iron_helmet" - железный шлем может присутствовать, а может и нет в одном из доступных слотов
         # "*iron_helmet" - железный шлем обязательно должен присутствовать в одном из доступных слотов
         # "!iron_helmet" - железный шлем не должен присутствовать в одном из доступных слотов
-        slots: ["*FEED", "*CHEST", "*HEAD", "*LEGS"] #"FEED", "CHEST", "HEAD", "LEGS", "OFF_HAND", "HAND", "INVENTORY"
+        slots: ["*FEED"] #"FEED", "CHEST", "HEAD", "LEGS", "OFF_HAND", "HAND", "INVENTORY"
         # "helmet" - заполнение слота зависит от настроек fill-slot
         # "*helmet" - слот шлема обязательно должен быть заполнен и не зависит от fill-slot
         # "!helmet" - слот шлема должен оставаться пустым и не зависит от fill-slot
         fill-slot: 3 #кол-во минимальных слотов из slots, которые должны быть заполнены, чтобы сработал бонус
         # "all" - все слоты из slots
         # цифра - кол-во слотов для заполнения. Не должен привышать длинну списка slots
-        additional-roll: 3 #прибавление к роллам
+        additional-roll: 1 #прибавление к роллам
       shield:
         items: "shield"
         slots: "off_hand"

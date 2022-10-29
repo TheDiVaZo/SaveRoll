@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import saveroll.logging.Logger;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class RiderBonus extends Bonus {
             this.additionalRoll = additionalRoll;
         }
 
-        private static ArrayList<EntityType> generateEntities(ArrayList<String> entitiesNames) {
+        private static ArrayList<EntityType> generateEntities(@NotNull List<String> entitiesNames) {
             ArrayList<EntityType> generatedEntities = new ArrayList<>();
             for (String entityName : entitiesNames) {
                 if(Objects.isNull(entityName)) continue;
@@ -43,7 +43,7 @@ public class RiderBonus extends Bonus {
             }
             return generatedEntities;
         }
-        private static ArrayList<Material> generateArmors(ArrayList<String> armorsNames) {
+        private static ArrayList<Material> generateArmors(@NotNull List<String> armorsNames) {
             ArrayList<Material> generatedArmors = new ArrayList<>();
             for (String armorName : armorsNames) {
                 if(Objects.isNull(armorName)) continue;
@@ -59,7 +59,7 @@ public class RiderBonus extends Bonus {
             return generatedArmors;
         }
 
-        public static AnimalsBonus generateRiderBonus(ArrayList<String> entitiesNames, ArrayList<String> armorsNames, int additionalRoll) {
+        public static AnimalsBonus generateRiderBonus(@NotNull List<String> entitiesNames, @NotNull List<String> armorsNames, int additionalRoll) {
             return new AnimalsBonus(generateEntities(entitiesNames), generateArmors(armorsNames), additionalRoll);
         }
 
@@ -101,17 +101,46 @@ public class RiderBonus extends Bonus {
         return animalsBonuses.stream().map(animalsBonus -> animalsBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 
-    public interface ConfigRiderParam {
-        @NotNull ArrayList<String> getAnimals();
-        @NotNull ArrayList<String> getArmor();
+    public interface ConfigRiderParam extends ConfigParam {
+        @NotNull List<String> getAnimals();
+        @NotNull List<String> getArmors();
         int getAdditionalRoll();
+    }
+
+    public static ConfigRiderParam generateConfig(List<String> animals, List<String> armors, int additionalRoll) {
+        return new ConfigRiderParam() {
+            @Override
+            public @NotNull List<String> getAnimals() {
+                return animals;
+            }
+
+            @Override
+            public @NotNull List<String> getArmors() {
+                return armors;
+            }
+
+            @Override
+            public int getAdditionalRoll() {
+                return additionalRoll;
+            }
+        };
     }
 
     @NotNull public static Bonus generateBonus(@NotNull ConfigRiderParam...configRiderParams) {
         ArrayList<AnimalsBonus> animalsBonuses = new ArrayList<>();
         RiderBonus bonus = new RiderBonus(animalsBonuses);
         for (ConfigRiderParam riderParam : configRiderParams) {
-            AnimalsBonus animalsBonus = AnimalsBonus.generateRiderBonus(riderParam.getAnimals(), riderParam.getArmor(), riderParam.getAdditionalRoll());
+            AnimalsBonus animalsBonus = AnimalsBonus.generateRiderBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
+            animalsBonuses.add(animalsBonus);
+        }
+        return bonus;
+    }
+
+    @NotNull public static Bonus generateBonus(@NotNull List<ConfigRiderParam> configRiderParams) {
+        ArrayList<AnimalsBonus> animalsBonuses = new ArrayList<>();
+        RiderBonus bonus = new RiderBonus(animalsBonuses);
+        for (ConfigRiderParam riderParam : configRiderParams) {
+            AnimalsBonus animalsBonus = AnimalsBonus.generateRiderBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
             animalsBonuses.add(animalsBonus);
         }
         return bonus;

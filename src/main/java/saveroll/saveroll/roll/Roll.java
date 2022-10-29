@@ -1,6 +1,7 @@
 package saveroll.saveroll.roll;
 
 import org.bukkit.entity.Player;
+import saveroll.saveroll.bonus.Bonus;
 import saveroll.saveroll.bonus.EquipmentBonus;
 import saveroll.saveroll.bonus.EffectentBonus;
 import saveroll.saveroll.bonus.RiderBonus;
@@ -8,40 +9,46 @@ import saveroll.saveroll.bonus.RiderBonus;
 public class Roll {
     private String name;
     private String placeholder;
-    private EquipmentBonus equipmentBonus;
-    private EffectentBonus effectentBonus;
-    private RiderBonus riderBonus;
+    private String placeholderText;
+    private Bonus equipmentBonus;
+    private Bonus effectentBonus;
+    private Bonus riderBonus;
 
-    public Roll(String name, String placeholder) {
+    public Roll(String name, String placeholder, String placeholderText) {
         this.name = name;
         this.placeholder = placeholder;
+        this.placeholderText = placeholderText;
     }
 
-    public EquipmentBonus getEquipmentBonus() {
+    public Bonus getEquipmentBonus() {
         return equipmentBonus;
     }
 
-    public void setEquipmentBonus(EquipmentBonus equipmentBonus) {
+    public void setEquipmentBonus(Bonus equipmentBonus) {
         this.equipmentBonus = equipmentBonus;
     }
 
-    public EffectentBonus getPotionBonus() {
+    public Bonus getPotionBonus() {
         return effectentBonus;
     }
 
-    public void setPotionBonus(EffectentBonus effectentBonus) {
+    public void setPotionBonus(Bonus effectentBonus) {
         this.effectentBonus = effectentBonus;
     }
 
-    public RiderBonus getRiderBonus() {
+    public Bonus getRiderBonus() {
         return riderBonus;
     }
 
-    public void setRiderBonus(RiderBonus riderBonus) {
+    public void setRiderBonus(Bonus riderBonus) {
         this.riderBonus = riderBonus;
     }
 
     public int calculateRoll(Player player) {
         return equipmentBonus.calculateRoll(player) + effectentBonus.calculateRoll(player) + riderBonus.calculateRoll(player);
+    }
+
+    public String getPlaceholderText() {
+        return placeholderText;
     }
 }

@@ -1,7 +1,6 @@
 package saveroll.saveroll.bonus;
 
 import org.bukkit.entity.*;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -68,7 +67,7 @@ public class EffectentBonus extends Bonus{
             this.additionalRoll = additionalRoll;
         }
 
-        private static ArrayList<ImportanceLevelObject<PotionEffect>> generateEffects(ArrayList<String> potionEffectNames) {
+        private static ArrayList<ImportanceLevelObject<PotionEffect>> generateEffects(@NotNull List<String> potionEffectNames) {
             ArrayList<ImportanceLevelObject<PotionEffect>> generatedEffects = new ArrayList<>();
             for (String effectFormat : potionEffectNames) {
                 if(Objects.isNull(effectFormat)) continue;
@@ -115,7 +114,7 @@ public class EffectentBonus extends Bonus{
             return generatedEffects;
         }
 
-        public static EffectBonus generateEffectBonus(ArrayList<String> potionEffectNames, int countEffects, int additionalRoll) {
+        public static EffectBonus generateEffectBonus(@NotNull List<String> potionEffectNames, int countEffects, int additionalRoll) {
             return new EffectBonus(generateEffects(potionEffectNames), countEffects, additionalRoll);
         }
 
@@ -146,6 +145,15 @@ public class EffectentBonus extends Bonus{
         public int hashCode() {
             return Objects.hash(potionEffects, countEffects, additionalRoll);
         }
+
+        @Override
+        public String toString() {
+            return "EffectBonus{" +
+                    "potionEffects=" + Arrays.toString(potionEffects.toArray()) +
+                    ", countEffects=" + countEffects +
+                    ", additionalRoll=" + additionalRoll +
+                    '}';
+        }
     }
     
     public EffectentBonus(ArrayList<EffectBonus> effectBonuses) {
@@ -158,10 +166,29 @@ public class EffectentBonus extends Bonus{
         return effectBonuses.stream().map(effectBonus -> effectBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 
-    public interface ConfigPotionEffectParam {
-        @NotNull ArrayList<String> getEffects();
+    public interface ConfigPotionEffectParam extends ConfigParam {
+        @NotNull List<String> getEffects();
         int getCountEffects();
         int getAdditionalRoll();
+    }
+
+    public static ConfigPotionEffectParam generateConfig(List<String> effects, int countEffects, int additionalRoll) {
+        return new ConfigPotionEffectParam() {
+            @Override
+            public @NotNull List<String> getEffects() {
+                return effects;
+            }
+
+            @Override
+            public int getCountEffects() {
+                return countEffects;
+            }
+
+            @Override
+            public int getAdditionalRoll() {
+                return additionalRoll;
+            }
+        };
     }
 
     @NotNull
@@ -173,6 +200,24 @@ public class EffectentBonus extends Bonus{
             effectPotionBonusesGenerate.add(effectBonus);
         }
         return bonus;
+    }
+
+    @NotNull
+    public static Bonus generateBonus(@NotNull List<ConfigPotionEffectParam> configPotionEffectParams) {
+        ArrayList<EffectBonus> effectPotionBonusesGenerate = new ArrayList<>();
+        EffectentBonus bonus = new EffectentBonus(effectPotionBonusesGenerate);
+        for (ConfigPotionEffectParam potionEffectParam : configPotionEffectParams) {
+            EffectBonus effectBonus = EffectBonus.generateEffectBonus(potionEffectParam.getEffects(), potionEffectParam.getCountEffects(), potionEffectParam.getAdditionalRoll());
+            effectPotionBonusesGenerate.add(effectBonus);
+        }
+        return bonus;
+    }
+
+    @Override
+    public String toString() {
+        return "EffectentBonus{" +
+                "effectBonuses=" + Arrays.toString(effectBonuses.toArray()) +
+                '}';
     }
 }
 

@@ -7,6 +7,7 @@ import saveroll.saveroll.bonus.EquipmentBonus;
 import saveroll.saveroll.bonus.RiderBonus;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class ConfigManager {
 //    interface MySQL {
@@ -17,11 +18,12 @@ public class ConfigManager {
 //    }
 
     public interface RollConfig {
-        String getPlaceholder();
+        String getSystemName();
+        String getName();
+
         ArrayList<EffectentBonus.ConfigPotionEffectParam> getConfigPotionEffect();
         ArrayList<EquipmentBonus.ConfigEquipItemsParam> getConfigEquipItems();
         ArrayList<RiderBonus.ConfigRiderParam> getConfigRider();
-        String getPlaceholderText();
     }
 
 //    private MySQL mySQLConfig = new MySQL() {
@@ -56,9 +58,13 @@ public class ConfigManager {
 
     private Map<String, RollConfig> rolls = new HashMap<>();
 
+    private int distanceVisibleRoll = 15;
+    private String textFromDiceCommand = "&eИгрок %player_name% кинул ролл на %rollplus_[roll-system-name]_name% %rollpluss_[roll-system-name]_random_count%";
+
     public void updateFileConfiguration(FileConfiguration fileConfiguration) {
         this.fileConfiguration = fileConfiguration;
         updateRolls();
+        updateSettings();
     }
 
     public Map<String, RollConfig> getRolls() {
@@ -94,16 +100,22 @@ public class ConfigManager {
 //        };
 //    }
 
+    private void updateSettings() {
+        distanceVisibleRoll = fileConfiguration.getInt("settings.command.dice.distance");
+        textFromDiceCommand = fileConfiguration.getString("settings.command.dice.text");
+    }
+
     private void updateRolls() {
         rolls.clear();
         ConfigurationSection bonusrolls = fileConfiguration.getConfigurationSection("bonusrolls");
         //assert bonusrolls != null;
-        Set<String> namesBonus = bonusrolls.getKeys(false);
-        for (String bonus : namesBonus) {
-            ConfigurationSection bonusConfigSection = bonusrolls.getConfigurationSection(bonus);
+        Set<String> namesPlusRolls = bonusrolls.getKeys(false);
+        for (String systemName : namesPlusRolls) {
+            ConfigurationSection bonusConfigSection = bonusrolls.getConfigurationSection(systemName);
             RollConfig rollConfig;
+            String gameName = bonusConfigSection.getString("name");
+            if(gameName == null) gameName = "Roll"+Math.round(Math.random() * 100000000);
 
-            String placeholderText = bonusConfigSection.getString("placeholder-text");
 
             ArrayList<EquipmentBonus.ConfigEquipItemsParam> configEquipItemsParams = new ArrayList<>();
             ArrayList<EffectentBonus.ConfigPotionEffectParam> configPotionEffectParams = new ArrayList<>();
@@ -142,10 +154,16 @@ public class ConfigManager {
                 }
             }
 
+            String finalGameName = gameName;
             rollConfig = new RollConfig() {
                 @Override
-                public String getPlaceholder() {
-                    return bonus;
+                public String getSystemName() {
+                    return systemName;
+                }
+
+                @Override
+                public String getName() {
+                    return finalGameName;
                 }
 
                 @Override
@@ -163,19 +181,23 @@ public class ConfigManager {
                     return configRiderParams;
                 }
 
-                @Override
-                public String getPlaceholderText() {
-                    return placeholderText;
-                }
             };
-            rolls.put(bonus, rollConfig);
+            rolls.put(systemName, rollConfig);
         }
     }
 
     private List<String> getAlwaysArrayList(String path, ConfigurationSection configurationSection) {
         if(configurationSection.isList(path)) return configurationSection.getStringList(path);
         else if(configurationSection.isString(path)) return new ArrayList<>(){{add(configurationSection.getString(path));}};
-        else return new ArrayList<String>();
+        else return new ArrayList<>();
+    }
+
+    public int getDistanceVisibleRoll() {
+        return distanceVisibleRoll;
+    }
+
+    public String getTextFromDiceCommand() {
+        return textFromDiceCommand;
     }
 
 }

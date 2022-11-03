@@ -10,6 +10,10 @@ public final class Logger {
         handler = h;
     }
 
+    public static void setDebugMode(boolean debugMode) {
+        handler.setDebugMode(debugMode);
+    }
+
     public static void debug(Object message, Object... placeholders){
         debug(message, null, placeholders);
     }

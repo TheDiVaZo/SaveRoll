@@ -3,6 +3,8 @@
 
 varsion: 1.0 #version of config
 
+#База данных MySQL пока не актуальна
+#Данное поле пока не работает.
 mysql:
   server_url: "jdbc:mysql://127.0.0.1/basedata"
   name: "username"
@@ -13,11 +15,22 @@ mysql:
     prepStmtCacheSqlLimit: 2048
     #и другие...
 
+settings:
+  command:
+    dice:
+      distance: 15 #дистанция видимости команды.
+      text: "&eИгрок %player_name% кинул ролл на [roll-name]:&c [roll-count-random] &eиз &c12-ти" #[roll-name] - короткий аналог %rollplus_[имя]_name% для вывода ролла ТОЛЬКО по команде /dice
+  debug: false #debug режим.
+
 bonusrolls:
-  defend: # Из названия строится плейсхолдер - %rollplus_defend%
-    placeholder-text: "Вы кинули ролл на защиту %roll%" # то, что будет возвращать плейсхолдер. Если ролла у игрока нет, будет возвращена пустая строка.
+  defend: # системное имя ролла
+    # %rollplus_defend_count% - плюс к роллу игрока на защиту (defend)
+    # %rollplus_defend_count_random% - рандомное число от 1 до 12 с учетом плюса к роллу.
+    # %rollplus_defend_name% - имя ролла, на который идет плюс
+    # %rollplus_defend_name_system% - системное имя ролла
+    name: "&cЗащита" #имя ролла, которое должен видеть пользователь.
     equip:
-      hard-armor: #любое название
+      hard-armor: #любое название, оно не используется все равно.
         items: ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"]
         #id предметов из майнкрафта.
         # "iron_helmet" - железный шлем может присутствовать, а может и нет в одном из доступных слотов
@@ -32,7 +45,7 @@ bonusrolls:
         # цифра - кол-во слотов для заполнения. Не должен привышать длинну списка slots
         additional-roll: 3 #прибавление к роллам
       shield:
-        items: "shield"
+        items: "*shield"
         slots: "off_hand"
         fill-slot: 1
         additional-roll: 1

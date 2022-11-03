@@ -37,8 +37,8 @@ public class PermsBaseManager extends DateBaseManager {
         Matcher matcher = PERMISSION_PATTERN.matcher(permissionRoll);
         if(matcher.find()) {
             try {
-                String group = matcher.group();
-                int roll = Integer.parseInt(matcher.group());
+                String group = matcher.group(1);
+                int roll = Integer.parseInt(matcher.group(2));
                 return new ParsedRoll() {
                     @Override
                     public String getRollName() {
@@ -97,7 +97,7 @@ public class PermsBaseManager extends DateBaseManager {
             ParsedRoll parsedRoll = getMaxLvlRollFromCollection(collection);
             if(parsedRoll != null) return parsedRoll.getBonusRoll();
         }
-        ParsedRoll parsedRoll = getMaxLvlRollFromCollection(user.getNodes(NodeType.PERMISSION));
+        ParsedRoll parsedRoll = getMaxLvlRollFromCollection(user.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, "([0-9]+)"))).collect(Collectors.toSet()));
         if(parsedRoll != null) return parsedRoll.getBonusRoll();
         return 0;
     }

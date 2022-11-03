@@ -30,23 +30,29 @@ public class SaveRoll extends JavaPlugin {
     private DateBaseManager dateBaseManager;
 
     public ConfigManager getConfigManager() {
+        if(configManager == null) configManager = new ConfigManager();
         return configManager;
     }
     public RollManager getRollManager() {
+        if(rollManager == null) rollManager = new RollManager();
         return rollManager;
     }
     public DateBaseManager getDateBaseManager() {
+        if(dateBaseManager == null) setDateBaseManager();
         return dateBaseManager;
     }
     public RollExpansion rollExpansion = new RollExpansion();
 
     public void setDateBaseManager() {
-        dateBaseManager = new PermsBaseManager();
-        Logger.info("DateBaseManager has installed");
+        if(dateBaseManager == null) {
+            dateBaseManager = new PermsBaseManager();
+            Logger.info("DateBaseManager has installed");
+        }
     }
 
     @Override
     public void onEnable() {
+        instance = this;
         Logger.init(new JULHandler(Bukkit.getLogger()));
         Logger.info("Starting...");
         saveDefaultConfig();
@@ -54,7 +60,6 @@ public class SaveRoll extends JavaPlugin {
         generateRolls();
         registerCommands();
         setDateBaseManager();
-        instance = this;
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             rollExpansion = new RollExpansion();
             rollExpansion.register();
@@ -76,7 +81,9 @@ public class SaveRoll extends JavaPlugin {
             ConfigManager.RollConfig rollConfig = rollsConfigEntry.getValue();
             String nameRoll = rollsConfigEntry.getKey();
 
-            Roll roll = new Roll(nameRoll, rollConfig.getPlaceholder(), rollConfig.getPlaceholderText());
+            Roll roll = new Roll(nameRoll);
+            roll.setName(rollConfig.getName());
+            roll.setSystemName(rollConfig.getSystemName());
             roll.setEquipmentBonus(EquipmentBonus.generateBonus(rollConfig.getConfigEquipItems()));
             roll.setPotionBonus(EffectentBonus.generateBonus(rollConfig.getConfigPotionEffect()));
             roll.setRiderBonus(RiderBonus.generateBonus(rollConfig.getConfigRider()));
@@ -97,13 +104,13 @@ public class SaveRoll extends JavaPlugin {
         rollExpansion = new RollExpansion();
         rollExpansion.register();
         setDateBaseManager();
+        Logger.setDebugMode(getConfig().getBoolean("settings.debug"));
         Logger.info("Config has been reloaded");
     }
 
     private void registerCommands() {
         PaperCommandManager manager = new PaperCommandManager(this);
 
-        manager.registerCommand(new Commands());
         manager.getCommandCompletions().registerCompletion("rollList", c -> configManager.getRolls().keySet().stream().toList());
         manager.registerCommand(new AdminCommand());
         manager.registerCommand(new UserCommand());

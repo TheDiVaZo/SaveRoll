@@ -163,6 +163,7 @@ public class EffectentBonus extends Bonus{
 
     @Override
     public int calculateRoll(Player player) {
+        if (effectBonuses.isEmpty()) return 0;
         return effectBonuses.stream().map(effectBonus -> effectBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 

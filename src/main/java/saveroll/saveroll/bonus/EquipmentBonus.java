@@ -138,7 +138,9 @@ public class EquipmentBonus extends Bonus{
             @Override
             public boolean isEquipMaterial(PlayerInventory inventory, Material material) {
                 for (ItemStack storageContent : inventory.getStorageContents()) {
-                    if(storageContent.getType().equals(material)) return true;
+                    if(storageContent != null && storageContent.getType().equals(material)) {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -224,16 +226,16 @@ public class EquipmentBonus extends Bonus{
                     if((slot.isRequied() || slot.isNeutral()) && (item.isRequied() || item.isNeutral()) && isRequiredItemInSlotForPlayer(inventory, slot.getObject(), item.getObject())) {
                         if(slot.isRequied()) countFillRequiredSlots++;
                         if(item.isRequied()) countFillRequiredMaterial++;
+                        countFillSlotsFromItems++;
                         break;
                     }
                     else if((slot.isBan() || item.isBan()) && isRequiredItemInSlotForPlayer(inventory, slot.getObject(), item.getObject())) maybeAdditionalRoll = 0;
-
                 }
             }
 
-            if(requiredMaterial > countFillRequiredMaterial) maybeAdditionalRoll = 0;
-            if(requiredSlots > countFillRequiredSlots) maybeAdditionalRoll = 0;
-            if(countFillSlotsFromItems > fillSlots) maybeAdditionalRoll = 0;
+            if(requiredMaterial != countFillRequiredMaterial) maybeAdditionalRoll = 0;
+            if(requiredSlots != countFillRequiredSlots) maybeAdditionalRoll = 0;
+            if(countFillSlotsFromItems < fillSlots) maybeAdditionalRoll = 0;
 
             return maybeAdditionalRoll;
 
@@ -262,6 +264,7 @@ public class EquipmentBonus extends Bonus{
 
     @Override
     public int calculateRoll(Player player) {
+        if(itemBonuses.isEmpty()) return 0;
         return itemBonuses.stream().map(itemBonus -> itemBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 

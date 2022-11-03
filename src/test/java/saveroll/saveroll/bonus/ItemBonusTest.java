@@ -98,6 +98,42 @@ class ItemBonusTest {
         assertEquals(3, equipmentBonus.calculateRoll(player));
     }
 
+    @Test
+    void getBonusFromPlayer4() throws Exception {
+        ArrayList<String> items = new ArrayList<>(){{add("LEATHER_HELMET"); add("LEATHER_CHESTPLATE");}};
+        ArrayList<String> slots = new ArrayList<>(){{add("HEAD"); add("CHEST");}};
+        EquipmentBonus.ItemBonus itemBonus = EquipmentBonus.ItemBonus.generateItemBonus(items, slots, 0, 2);
+
+        Player player = Mockito.mock(Player.class);
+        PlayerInventory inventory = Mockito.mock(PlayerInventory.class);
+
+        Mockito.when(player.getInventory()).thenReturn(inventory);
+
+        ItemStack helmet = Mockito.mock(ItemStack.class);
+        Mockito.when(helmet.getType()).thenReturn(Material.LEATHER_HELMET);
+        ItemStack boots = Mockito.mock(ItemStack.class);
+        Mockito.when(boots.getType()).thenReturn(Material.LEATHER_CHESTPLATE);
+        ItemStack chest = Mockito.mock(ItemStack.class);
+        Mockito.when(chest.getType()).thenReturn(Material.LEATHER_CHESTPLATE);
+        ItemStack legs = Mockito.mock(ItemStack.class);
+        Mockito.when(legs.getType()).thenReturn(Material.DIAMOND_BOOTS);
+        ItemStack hand = Mockito.mock(ItemStack.class);
+        Mockito.when(hand.getType()).thenReturn(Material.AIR);
+
+        Mockito.when(inventory.getBoots()).thenReturn(null);
+        Mockito.when(inventory.getHelmet()).thenReturn(null);
+        Mockito.when(inventory.getChestplate()).thenReturn(null);
+        Mockito.when(inventory.getLeggings()).thenReturn(null);
+        Mockito.when(inventory.getItemInMainHand()).thenReturn(null);
+        Mockito.when(inventory.getStorageContents()).thenReturn(null);
+
+
+        int result = itemBonus.getBonusFromPlayer(player);
+
+        int requiredResult = 2;
+
+        assertEquals(result, requiredResult);
+    }
 
     @Test
     void getBonusFromPlayer3() throws Exception {

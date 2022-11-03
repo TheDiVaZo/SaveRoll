@@ -28,7 +28,7 @@ class ConfigManagerTest {
         ConfigManager configManager = new ConfigManager(configuration);
         configManager.updateFileConfiguration(configuration);
         for (ConfigManager.RollConfig rollConfig : configManager.getRolls().values()) {
-            String text = rollConfig.getPlaceholder() + "\n";
+            String text = "\n";
             text += "equip {\n";
             for (EquipmentBonus.ConfigEquipItemsParam configEquipItem : rollConfig.getConfigEquipItems()) {
                 text += "   items: " + Arrays.toString(configEquipItem.getItems().toArray(new String[]{})) + "\n";

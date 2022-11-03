@@ -1,6 +1,7 @@
 package saveroll.logging;
 
 public interface LoggerHandler {
+    void setDebugMode(boolean debugMode);
 
     void debug(Object message, Throwable throwable, Object... placeholders);
 

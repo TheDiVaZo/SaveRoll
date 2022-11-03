@@ -82,6 +82,7 @@ public class RiderBonus extends Bonus {
         public int getBonusFromPlayer(Player player) {
             if(!player.isInsideVehicle()) return 0;
             if(!(player.getVehicle() instanceof LivingEntity livingEntity)) return 0;
+            if(armors.isEmpty()) return additionalRoll;
             for (Material armor : armors) {
                 for (EntityType entity : entities) {
                     if(livingEntity.getType().equals(entity) && isEquipArmorOfEntity(armor, livingEntity)) return additionalRoll;
@@ -98,6 +99,7 @@ public class RiderBonus extends Bonus {
 
     @Override
     public int calculateRoll(Player player) {
+        if(animalsBonuses.isEmpty()) return 0;
         return animalsBonuses.stream().map(animalsBonus -> animalsBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 

@@ -43,6 +43,8 @@ public class RollManager {
 
 
     public boolean hasRoll(String nameRoll) {
+        if(rolls == null)
+            throw new NullPointerException("Произошла непредвиденная ошибка. Конфиг является невалидным. Требуется перезагрузка конфига!");
         return rolls.containsKey(nameRoll);
     }
 

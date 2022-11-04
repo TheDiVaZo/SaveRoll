@@ -47,6 +47,6 @@ bonusrolls:
     rider:
       horse-rider:
         animals: ["horse"] #текстовый ID животного.
-        armor: ["leather_horse_armor"] #броня животного, на которого сел игрок.
+        armors: ["leather_horse_armor"] #броня животного, на которого сел игрок.
         #не имеет модификаторов приоритета.
         additional-roll: 1

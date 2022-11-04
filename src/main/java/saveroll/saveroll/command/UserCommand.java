@@ -38,12 +38,19 @@ public class UserCommand extends BaseCommand {
     @Description("Кидать ролл")
     @CommandCompletion("@rollList")
     public static void onDice(Player player, String rollName) {
-        if(!rollManager.hasRoll(rollName)) {
-            ChatManager.sendPrivateMessage(player,"&cТакого типа ролла не существует!");
-            return;
-        }
-        Roll roll = rollManager.getRolls().get(rollName);
-        ChatManager.sendChatMessage(player, PlaceholderAPI.setPlaceholders(player, replaceTextRoll(player, roll)), configManager.getDistanceVisibleRoll());
+        try {
 
+
+            if (!rollManager.hasRoll(rollName)) {
+                ChatManager.sendPrivateMessage(player, "&cТакого типа ролла не существует!");
+                return;
+            }
+            Roll roll = rollManager.getRolls().get(rollName);
+            ChatManager.sendChatMessage(player, PlaceholderAPI.setPlaceholders(player, replaceTextRoll(player, roll)), configManager.getDistanceVisibleRoll());
+        } catch (Exception e) {
+            ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
+            Logger.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

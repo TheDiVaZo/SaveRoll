@@ -1,17 +1,15 @@
 package saveroll.saveroll.bonus;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import saveroll.errors.NotExistMaterialException;
 import saveroll.logging.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public class RiderBonus extends Bonus {
 
@@ -28,47 +26,28 @@ public class RiderBonus extends Bonus {
             this.additionalRoll = additionalRoll;
         }
 
-        private static ArrayList<EntityType> generateEntities(@NotNull List<String> entitiesNames) {
+        private static ArrayList<EntityType> generateEntities(@NotNull List<String> entitiesNames) throws NotExistMaterialException {
             ArrayList<EntityType> generatedEntities = new ArrayList<>();
             for (String entityName : entitiesNames) {
                 if(Objects.isNull(entityName)) continue;
-                EntityType entity;
-                try {
-                    entity = EntityType.valueOf(entityName.toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException | NullPointerException e) {
-                    Logger.error("Сущность "+entityName+" не найдена! Пожалуйста, проверьте конфиг на наличие опечаток.");
-                    continue;
-                }
+                EntityType entity = getMaterialFromString("Сущность "+entityName+" не найдена! Пожалуйста, проверьте конфиг на наличие опечаток.", entityName, EntityType.class);
                 generatedEntities.add(entity);
             }
             return generatedEntities;
         }
-        private static ArrayList<Material> generateArmors(@NotNull List<String> armorsNames) {
+        private static ArrayList<Material> generateArmors(@NotNull List<String> armorsNames) throws NotExistMaterialException {
+            Logger.debug(Arrays.toString(armorsNames.toArray(new String[0])) + " armorNames! Horse");
             ArrayList<Material> generatedArmors = new ArrayList<>();
             for (String armorName : armorsNames) {
                 if(Objects.isNull(armorName)) continue;
-                Material armor;
-                try {
-                    armor = Material.valueOf(armorName.toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException | NullPointerException e) {
-                    Logger.error("Броня "+armorName+" не существует. Проверьте конфиг на наличие опечаток.");
-                    continue;
-                }
+                Material armor = getMaterialFromString("Броня "+armorName+" не существует! Проверьте слово на наличие опечаток.", armorName, Material.class);
                 generatedArmors.add(armor);
             }
             return generatedArmors;
         }
 
-        public static AnimalsBonus generateRiderBonus(@NotNull List<String> entitiesNames, @NotNull List<String> armorsNames, int additionalRoll) {
+        public static AnimalsBonus generateAnimalsBonus(@NotNull List<String> entitiesNames, @NotNull List<String> armorsNames, int additionalRoll) throws NotExistMaterialException {
             return new AnimalsBonus(generateEntities(entitiesNames), generateArmors(armorsNames), additionalRoll);
-        }
-
-        private boolean isEquipArmorOfEntity(Material armor, Horse entity) {
-            ItemStack armorHorse = entity.getInventory().getArmor();
-            if(armorHorse != null) {
-                return armorHorse.getType().equals(armor);
-            }
-            else return false;
         }
 
         private boolean isEquipArmorOfEntity(Material armor, LivingEntity entity) {
@@ -82,11 +61,12 @@ public class RiderBonus extends Bonus {
         public int getBonusFromPlayer(Player player) {
             if(!player.isInsideVehicle()) return 0;
             if(!(player.getVehicle() instanceof LivingEntity livingEntity)) return 0;
-            if(armors.isEmpty()) return additionalRoll;
-            for (Material armor : armors) {
-                for (EntityType entity : entities) {
+            for (EntityType entity : entities) {
+                for (Material armor : armors) {
+                    Logger.debug(armor + " - getBonusFromPlayer");
                     if(livingEntity.getType().equals(entity) && isEquipArmorOfEntity(armor, livingEntity)) return additionalRoll;
                 }
+                if(armors.isEmpty()) return additionalRoll;
             }
             return 0;
         }
@@ -128,21 +108,21 @@ public class RiderBonus extends Bonus {
         };
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull ConfigRiderParam...configRiderParams) {
+    @NotNull public static Bonus generateBonus(@NotNull ConfigRiderParam...configRiderParams) throws NotExistMaterialException {
         ArrayList<AnimalsBonus> animalsBonuses = new ArrayList<>();
         RiderBonus bonus = new RiderBonus(animalsBonuses);
         for (ConfigRiderParam riderParam : configRiderParams) {
-            AnimalsBonus animalsBonus = AnimalsBonus.generateRiderBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
+            AnimalsBonus animalsBonus = AnimalsBonus.generateAnimalsBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
             animalsBonuses.add(animalsBonus);
         }
         return bonus;
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull List<ConfigRiderParam> configRiderParams) {
+    @NotNull public static Bonus generateBonus(@NotNull List<ConfigRiderParam> configRiderParams) throws NotExistMaterialException {
         ArrayList<AnimalsBonus> animalsBonuses = new ArrayList<>();
         RiderBonus bonus = new RiderBonus(animalsBonuses);
         for (ConfigRiderParam riderParam : configRiderParams) {
-            AnimalsBonus animalsBonus = AnimalsBonus.generateRiderBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
+            AnimalsBonus animalsBonus = AnimalsBonus.generateAnimalsBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
             animalsBonuses.add(animalsBonus);
         }
         return bonus;

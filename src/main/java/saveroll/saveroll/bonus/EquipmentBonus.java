@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
+import saveroll.errors.NotExistMaterialException;
 import saveroll.logging.Logger;
 import saveroll.saveroll.ImportanceLevelObject;
 
@@ -181,19 +182,13 @@ public class EquipmentBonus extends Bonus{
             }
             return materialItems;
         }
-        private static ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> generateSlots(@NotNull List<String> slots) {
+        private static ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> generateSlots(@NotNull List<String> slots) throws NotExistMaterialException {
             ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> equipmentWrapperSlots = new ArrayList<>();
             for (String slotName : slots) {
                 if(slotName == null) continue;
                 char signImportance = slotName.charAt(0);
                 slotName = slotName.replaceFirst("^([\\!\\*])+", "");
-                EquipmentSlotWrapper equipmentWrapperSlot;
-                try {
-                    equipmentWrapperSlot = EquipmentSlotWrapper.valueOf(slotName.toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException | NullPointerException exception) {
-                    Logger.error("Слот "+slotName+" не является действительным! Пожалуйста, проверьте конфиг на наличие опечаток.");
-                    continue;
-                }
+                EquipmentSlotWrapper equipmentWrapperSlot = getMaterialFromString("Слота с названием "+slotName+" не существует! Проверьте корректность слова", slotName, EquipmentSlotWrapper.class);
                 if(signImportance == REQUIED_SIGN) equipmentWrapperSlots.add(new RequiredSlot(equipmentWrapperSlot));
                 else if(signImportance == BAN_SIGN) equipmentWrapperSlots.add(new BanSlot(equipmentWrapperSlot));
                 else equipmentWrapperSlots.add(new NeutralSlot(equipmentWrapperSlot));
@@ -201,7 +196,7 @@ public class EquipmentBonus extends Bonus{
             return equipmentWrapperSlots;
         }
         
-        public static ItemBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) {
+        public static ItemBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) throws NotExistMaterialException {
             return new ItemBonus(generateItems(items), generateSlots(slots), fillSlots, additionalRoll);
         }
 
@@ -299,7 +294,7 @@ public class EquipmentBonus extends Bonus{
         };
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) {
+    @NotNull public static Bonus generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) throws NotExistMaterialException {
         ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
         EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {
@@ -309,7 +304,7 @@ public class EquipmentBonus extends Bonus{
         return bonus;
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) {
+    @NotNull public static Bonus generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) throws NotExistMaterialException {
         ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
         EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {

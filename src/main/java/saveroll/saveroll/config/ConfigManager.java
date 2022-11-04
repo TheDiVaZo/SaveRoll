@@ -2,6 +2,7 @@ package saveroll.saveroll.config;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import saveroll.logging.Logger;
 import saveroll.saveroll.bonus.EffectentBonus;
 import saveroll.saveroll.bonus.EquipmentBonus;
 import saveroll.saveroll.bonus.RiderBonus;
@@ -146,9 +147,11 @@ public class ConfigManager {
             if(bonusConfigSection.isConfigurationSection("rider")) {
                 Map<String, Object> equip = bonusConfigSection.getConfigurationSection("rider").getValues(false);
                 for (String key : equip.keySet()) {
+                    Logger.debug(key + " - rider element");
                     if(!(equip.get(key) instanceof ConfigurationSection animalsComplect)) continue;
                     List<String> animals = getAlwaysArrayList("animals", animalsComplect);
-                    List<String> armors = getAlwaysArrayList("armor", animalsComplect);
+                    List<String> armors = getAlwaysArrayList("armors", animalsComplect);
+                    Logger.debug(Arrays.toString(armors.toArray(new String[0])) + " updateRolls Config! " +key+ " - element armors");
                     int additionalRoll = animalsComplect.getInt("additional-roll");
                     configRiderParams.add(RiderBonus.generateConfig(animals, armors, additionalRoll));
                 }

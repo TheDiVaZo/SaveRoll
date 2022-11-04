@@ -2,7 +2,10 @@ package saveroll.saveroll.command;
 
 import co.aikar.commands.annotation.*;
 import co.aikar.commands.BaseCommand;
+import com.mysql.jdbc.log.Log;
 import org.bukkit.entity.Player;
+import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotMatchPatternException;
 import saveroll.logging.Logger;
 import saveroll.saveroll.SaveRoll;
 import saveroll.saveroll.chat.ChatManager;
@@ -36,16 +39,28 @@ public class AdminCommand extends BaseCommand {
     @Description("Перезагрузка конфига плагина")
     @CommandPermission("saveroll.reload")
     public static void onReload(Player player) {
-        saveRoll.reloadPlugin();
-        sendPrivateMessage(player,"&eКонфиг был перезагружен.");
+        try {
+            saveRoll.reloadPlugin();
+            sendPrivateMessage(player,"&eКонфиг был перезагружен.");
+        } catch (NotExistMaterialException | NotMatchPatternException e) {
+            sendPrivateMessage(player,"&cОшибка при выполнении команды: &e"+e.getMessage());
+            Logger.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Subcommand("set")
     @CommandPermission("saveroll.set")
     @CommandCompletion("@rollList <number> @players")
     public static void setRoll(Player player, String rollName, int roll, Player otherPlayer) {
-        SaveRoll.getInstance().getDateBaseManager().setRollForPlayer(otherPlayer.getUniqueId(), rollName, String.valueOf(roll));
-        sendPrivateMessage(player, "&eРолл &c"+rollName+"&e успешно установлен игроку "+otherPlayer.getName());
+        try {
+            SaveRoll.getInstance().getDateBaseManager().setRollForPlayer(otherPlayer.getUniqueId(), rollName, String.valueOf(roll));
+            sendPrivateMessage(player, "&eРолл &c" + rollName + "&e успешно установлен игроку " + otherPlayer.getName());
+        } catch (Exception e) {
+            ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
+            Logger.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Subcommand("getAll")
@@ -53,11 +68,17 @@ public class AdminCommand extends BaseCommand {
     @CommandPermission("saveroll.getall")
     @CommandCompletion("@players")
     public static void getAllRoll(Player player, Player otherPlayer) {
-        String text = "";
-        for(Roll roll: SaveRoll.getInstance().getRollManager().getRolls().values()) {
-            text += getTextDescFromRoll(roll, otherPlayer) + "\n";
+        try {
+            String text = "";
+            for(Roll roll: SaveRoll.getInstance().getRollManager().getRolls().values()) {
+                text += getTextDescFromRoll(roll, otherPlayer) + "\n";
+            }
+            sendPrivateMessage(player, text);
+        } catch (Exception e) {
+            ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
+            Logger.error(e.getMessage());
+            e.printStackTrace();
         }
-        sendPrivateMessage(player, text);
     }
 
     @Subcommand("get")
@@ -65,11 +86,17 @@ public class AdminCommand extends BaseCommand {
     @CommandPermission("saveroll.get")
     @CommandCompletion("@rollList @players")
     public static void getRoll(Player player, String rollName, Player otherPlayer) {
-        if(!rollManager.hasRoll(rollName)) {
-            sendPrivateMessage(player,"&cТакого типа ролла не существует!");
-            return;
+        try {
+            if(!rollManager.hasRoll(rollName)) {
+                sendPrivateMessage(player,"&cТакого типа ролла не существует!");
+                return;
+            }
+            Roll roll = rollManager.getRolls().get(rollName);
+            sendPrivateMessage(player,getTextDescFromRoll(roll, otherPlayer));
+        } catch (Exception e) {
+            ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
+            Logger.error(e.getMessage());
+            e.printStackTrace();
         }
-        Roll roll = rollManager.getRolls().get(rollName);
-        sendPrivateMessage(player,getTextDescFromRoll(roll, otherPlayer));
     }
 }

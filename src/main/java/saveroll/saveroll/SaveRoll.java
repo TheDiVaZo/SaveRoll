@@ -3,6 +3,8 @@ package saveroll.saveroll;
 import co.aikar.commands.PaperCommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotMatchPatternException;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
 import saveroll.saveroll.bonus.EffectentBonus;
@@ -57,7 +59,12 @@ public class SaveRoll extends JavaPlugin {
         Logger.info("Starting...");
         saveDefaultConfig();
         getConfigManager().updateFileConfiguration(getConfig());
-        generateRolls();
+        try {
+            generateRolls();
+        } catch (NotExistMaterialException | NotMatchPatternException e) {
+            Logger.error(e.getMessage());
+            e.printStackTrace();
+        }
         registerCommands();
         setDateBaseManager();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -75,7 +82,7 @@ public class SaveRoll extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public void generateRolls() {
+    public void generateRolls() throws NotExistMaterialException, NotMatchPatternException {
         Map<String, Roll> rollMap = new HashMap<>();
         for (Map.Entry<String, ConfigManager.RollConfig> rollsConfigEntry : getConfigManager().getRolls().entrySet()) {
             ConfigManager.RollConfig rollConfig = rollsConfigEntry.getValue();
@@ -87,14 +94,16 @@ public class SaveRoll extends JavaPlugin {
             roll.setEquipmentBonus(EquipmentBonus.generateBonus(rollConfig.getConfigEquipItems()));
             roll.setPotionBonus(EffectentBonus.generateBonus(rollConfig.getConfigPotionEffect()));
             roll.setRiderBonus(RiderBonus.generateBonus(rollConfig.getConfigRider()));
+            Logger.debug("Rider bonus SET");
 
             rollMap.put(nameRoll, roll);
         }
         getRollManager().setRolls(rollMap);
+
         Logger.info("Rolls has been loaded");
     }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() throws NotExistMaterialException, NotMatchPatternException {
         reloadConfig();
         saveConfig();
         getConfigManager().updateFileConfiguration(getConfig());
@@ -106,6 +115,7 @@ public class SaveRoll extends JavaPlugin {
         setDateBaseManager();
         Logger.setDebugMode(getConfig().getBoolean("settings.debug"));
         Logger.info("Config has been reloaded");
+        Logger.debug("Debug Mode has been enabled");
     }
 
     private void registerCommands() {

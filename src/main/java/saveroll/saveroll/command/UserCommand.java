@@ -30,7 +30,7 @@ public class UserCommand extends BaseCommand {
                 .replaceAll(ROLL_NAME_REGEX.pattern(), roll.getName())
                 .replaceAll(ROLL_NAME_SYSTEM_REGEX.pattern(), roll.getSystemName())
                 .replaceAll(ROLL_COUNT_REGEX.pattern(), String.valueOf(rollManager.calculateRoll(roll, player)))
-                .replaceAll(ROLL_COUNT_RANDOM_REGEX.pattern(), String.valueOf(rollManager.calculateRoll(roll, player) + Math.round(Math.random() * 12)));
+                .replaceAll(ROLL_COUNT_RANDOM_REGEX.pattern(), String.valueOf(rollManager.calculateRoll(roll, player) + Math.round(Math.random() * 11 + 1)));
 
     }
 
@@ -39,8 +39,6 @@ public class UserCommand extends BaseCommand {
     @CommandCompletion("@rollList")
     public static void onDice(Player player, String rollName) {
         try {
-
-
             if (!rollManager.hasRoll(rollName)) {
                 ChatManager.sendPrivateMessage(player, "&cТакого типа ролла не существует!");
                 return;

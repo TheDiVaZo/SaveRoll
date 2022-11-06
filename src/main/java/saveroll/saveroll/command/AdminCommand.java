@@ -3,6 +3,7 @@ package saveroll.saveroll.command;
 import co.aikar.commands.annotation.*;
 import co.aikar.commands.BaseCommand;
 import com.mysql.jdbc.log.Log;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import saveroll.errors.NotExistMaterialException;
 import saveroll.errors.NotMatchPatternException;
@@ -32,7 +33,7 @@ public class AdminCommand extends BaseCommand {
                 + "\n     &cПлюс за транспорт: &5" + roll.getRiderBonus().calculateRoll(player)
                 + "\n     &cУстановленный плюс к роллу: &5" + dateBaseManager.getRollForPlayer(player.getUniqueId(), roll.getSystemName())
                 + "\n     &cОбщий плюс к роллу: &5" + rollManager.calculateRoll(roll,player)
-                + "\n     &c/dice "+roll.getSystemName()+" -> : &5" + (rollManager.calculateRoll(roll,player) + Math.round(Math.random()*12)) + " из 12ти";
+                + "\n     &c/dice "+roll.getSystemName()+" -> : &5" + (rollManager.calculateRoll(roll,player) + Math.round(Math.random() * 11 + 1)) + " из 12ти";
     }
 
     @Subcommand("reload")
@@ -52,10 +53,13 @@ public class AdminCommand extends BaseCommand {
     @Subcommand("set")
     @CommandPermission("saveroll.set")
     @CommandCompletion("@rollList <number> @players")
-    public static void setRoll(Player player, String rollName, int roll, Player otherPlayer) {
+    public static void setRoll(Player player, String rollName, int roll, OfflinePlayer otherPlayer) {
         try {
             SaveRoll.getInstance().getDateBaseManager().setRollForPlayer(otherPlayer.getUniqueId(), rollName, String.valueOf(roll));
-            sendPrivateMessage(player, "&eРолл &c" + rollName + "&e успешно установлен игроку " + otherPlayer.getName());
+            sendPrivateMessage(player, "&eБонус к роллу &c" + rollName + "&e успешно установлен игроку " + otherPlayer.getName());
+            if(otherPlayer.isOnline() && otherPlayer.getPlayer() != null) {
+                sendPrivateMessage(otherPlayer.getPlayer(), "&eИгрок &c"+player.getName()+" &eустановил вам бонус к роллу &c" + rollName + "&e. Теперь у вас &c+"+roll+"&e" );
+            }
         } catch (Exception e) {
             ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
             Logger.error(e.getMessage());
@@ -67,11 +71,15 @@ public class AdminCommand extends BaseCommand {
     @Description("получить все роллы")
     @CommandPermission("saveroll.getall")
     @CommandCompletion("@players")
-    public static void getAllRoll(Player player, Player otherPlayer) {
+    public static void getAllRoll(Player player, OfflinePlayer otherPlayer) {
+        if(!otherPlayer.isOnline()) {
+            sendPrivateMessage(player, "&cИгрок должен быть в сети.");
+            return;
+        }
         try {
             String text = "";
             for(Roll roll: SaveRoll.getInstance().getRollManager().getRolls().values()) {
-                text += getTextDescFromRoll(roll, otherPlayer) + "\n";
+                text += getTextDescFromRoll(roll, otherPlayer.getPlayer()) + "\n";
             }
             sendPrivateMessage(player, text);
         } catch (Exception e) {
@@ -85,14 +93,18 @@ public class AdminCommand extends BaseCommand {
     @Description("получить свой ролл или ролл игрока")
     @CommandPermission("saveroll.get")
     @CommandCompletion("@rollList @players")
-    public static void getRoll(Player player, String rollName, Player otherPlayer) {
+    public static void getRoll(Player player, String rollName, OfflinePlayer otherPlayer) {
+        if(!otherPlayer.isOnline() && otherPlayer.getPlayer() != null) {
+            sendPrivateMessage(player, "&cИгрок должен бть в сети.");
+            return;
+        }
         try {
             if(!rollManager.hasRoll(rollName)) {
                 sendPrivateMessage(player,"&cТакого типа ролла не существует!");
                 return;
             }
             Roll roll = rollManager.getRolls().get(rollName);
-            sendPrivateMessage(player,getTextDescFromRoll(roll, otherPlayer));
+            sendPrivateMessage(player,getTextDescFromRoll(roll, otherPlayer.getPlayer()));
         } catch (Exception e) {
             ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
             Logger.error(e.getMessage());

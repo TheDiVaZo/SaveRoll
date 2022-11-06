@@ -1,5 +1,6 @@
 package saveroll.saveroll.bonus;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -18,7 +19,7 @@ public class EffectentBonus extends Bonus{
 
     private static final char REQUIED_SIGN = '*';
     private static final char BAN_SIGN = '!';
-    private static final String EFFECT_CONFIG_REGEX = "[*!]?([a-z_A-Z]+)\\:([1-9]{0,3})";
+    private static final String EFFECT_CONFIG_REGEX = "[*!]?([a-z_A-Z]+)\\:([0-9]{0,3})";
 
     private final ArrayList<EffectBonus> effectBonuses;
 

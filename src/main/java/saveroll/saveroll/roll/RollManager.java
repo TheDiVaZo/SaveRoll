@@ -1,5 +1,6 @@
 package saveroll.saveroll.roll;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import saveroll.saveroll.SaveRoll;
 

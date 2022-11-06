@@ -8,6 +8,8 @@ import net.luckperms.api.node.Node;
 import net.luckperms.api.node.NodeType;
 import net.luckperms.api.node.types.PermissionNode;
 import net.luckperms.api.query.Flag;
+import net.luckperms.api.query.QueryMode;
+import net.luckperms.api.query.QueryOptions;
 import org.bukkit.Bukkit;
 import saveroll.logging.Logger;
 
@@ -88,17 +90,25 @@ public class PermsBaseManager extends DateBaseManager {
     @Override
     public int getRollForPlayer(UUID player, String bonusName) {
         User user = api.getUserManager().getUser(player);
+        ParsedRoll groupParsedRoll = null;
         if(user == null) {
             Logger.warn("Игрок не найден");
             return 0;
         }
-        for (Group inheritedGroup : user.getInheritedGroups(user.getQueryOptions())) {
+        for (Group inheritedGroup : user.getInheritedGroups(user.getQueryOptions().toBuilder().flag(Flag.RESOLVE_INHERITANCE, true).build())) {
             Set<PermissionNode> collection = inheritedGroup.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, "([0-9]+)"))).collect(Collectors.toSet());
             ParsedRoll parsedRoll = getMaxLvlRollFromCollection(collection);
-            if(parsedRoll != null) return parsedRoll.getBonusRoll();
+            if(parsedRoll != null) {
+                groupParsedRoll = parsedRoll;
+                break;
+            }
         }
         ParsedRoll parsedRoll = getMaxLvlRollFromCollection(user.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, "([0-9]+)"))).collect(Collectors.toSet()));
-        if(parsedRoll != null) return parsedRoll.getBonusRoll();
-        return 0;
+        if(parsedRoll != null && groupParsedRoll != null) {
+            return Math.max(parsedRoll.getBonusRoll(), groupParsedRoll.getBonusRoll());
+        }
+        else if(groupParsedRoll == null && parsedRoll == null) return 0;
+        else if(parsedRoll == null) return groupParsedRoll.getBonusRoll();
+        else return parsedRoll.getBonusRoll();
     }
 }

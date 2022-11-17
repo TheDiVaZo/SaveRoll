@@ -1,20 +1,21 @@
 package saveroll.saveroll.bonus;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import saveroll.errors.NotExistMaterialException;
 import saveroll.errors.NotMatchPatternException;
-import saveroll.logging.Logger;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
-public abstract class Bonus {
+public abstract class Condition {
+    public interface plagEnum<T> {
+        T getByName(String string);
+    }
+
     protected final String name;
 
     protected interface ConfigParam {}
 
-    protected Bonus(String name) {
+    protected Condition(String name) {
         this.name = name;
     }
 

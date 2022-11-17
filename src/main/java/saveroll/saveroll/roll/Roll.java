@@ -1,45 +1,45 @@
 package saveroll.saveroll.roll;
 
 import org.bukkit.entity.Player;
-import saveroll.saveroll.bonus.Bonus;
+import saveroll.saveroll.bonus.Condition;
 
 public class Roll {
     private String systemName;
     private String name;
-    private Bonus equipmentBonus;
-    private Bonus effectentBonus;
-    private Bonus riderBonus;
+    private Condition equipmentCondition;
+    private Condition effectentCondition;
+    private Condition riderCondition;
 
     public Roll(String systemName) {
         this.systemName = systemName;
     }
 
-    public Bonus getEquipmentBonus() {
-        return equipmentBonus;
+    public Condition getEquipmentBonus() {
+        return equipmentCondition;
     }
 
-    public void setEquipmentBonus(Bonus equipmentBonus) {
-        this.equipmentBonus = equipmentBonus;
+    public void setEquipmentBonus(Condition equipmentCondition) {
+        this.equipmentCondition = equipmentCondition;
     }
 
-    public Bonus getPotionBonus() {
-        return effectentBonus;
+    public Condition getPotionBonus() {
+        return effectentCondition;
     }
 
-    public void setPotionBonus(Bonus effectentBonus) {
-        this.effectentBonus = effectentBonus;
+    public void setPotionBonus(Condition effectentCondition) {
+        this.effectentCondition = effectentCondition;
     }
 
-    public Bonus getRiderBonus() {
-        return riderBonus;
+    public Condition getRiderBonus() {
+        return riderCondition;
     }
 
-    public void setRiderBonus(Bonus riderBonus) {
-        this.riderBonus = riderBonus;
+    public void setRiderBonus(Condition riderCondition) {
+        this.riderCondition = riderCondition;
     }
 
     public int calculateRoll(Player player) {
-        return equipmentBonus.calculateRoll(player) + effectentBonus.calculateRoll(player) + riderBonus.calculateRoll(player);
+        return equipmentCondition.calculateRoll(player) + effectentCondition.calculateRoll(player) + riderCondition.calculateRoll(player);
     }
 
     public String getSystemName() {

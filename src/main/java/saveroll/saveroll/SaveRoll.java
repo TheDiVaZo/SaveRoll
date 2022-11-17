@@ -7,9 +7,9 @@ import saveroll.errors.NotExistMaterialException;
 import saveroll.errors.NotMatchPatternException;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
-import saveroll.saveroll.bonus.EffectentBonus;
-import saveroll.saveroll.bonus.EquipmentBonus;
-import saveroll.saveroll.bonus.RiderBonus;
+import saveroll.saveroll.bonus.EffectentCondition;
+import saveroll.saveroll.bonus.EquipmentCondition;
+import saveroll.saveroll.bonus.RiderCondition;
 import saveroll.saveroll.command.AdminCommand;
 import saveroll.saveroll.command.UserCommand;
 import saveroll.saveroll.config.ConfigManager;
@@ -19,7 +19,6 @@ import saveroll.saveroll.placeholder.RollExpansion;
 import saveroll.saveroll.roll.Roll;
 import saveroll.saveroll.roll.RollManager;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,9 +90,9 @@ public class SaveRoll extends JavaPlugin {
             Roll roll = new Roll(nameRoll);
             roll.setName(rollConfig.getName());
             roll.setSystemName(rollConfig.getSystemName());
-            roll.setEquipmentBonus(EquipmentBonus.generateBonus(rollConfig.getConfigEquipItems()));
-            roll.setPotionBonus(EffectentBonus.generateBonus(rollConfig.getConfigPotionEffect()));
-            roll.setRiderBonus(RiderBonus.generateBonus(rollConfig.getConfigRider()));
+            roll.setEquipmentBonus(EquipmentCondition.generateBonus(rollConfig.getConfigEquipItems()));
+            roll.setPotionBonus(EffectentCondition.generateBonus(rollConfig.getConfigPotionEffect()));
+            roll.setRiderBonus(RiderCondition.generateBonus(rollConfig.getConfigRider()));
             Logger.debug("Rider bonus SET");
 
             rollMap.put(nameRoll, roll);

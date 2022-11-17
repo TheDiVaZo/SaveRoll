@@ -11,6 +11,7 @@ import net.luckperms.api.query.Flag;
 import net.luckperms.api.query.QueryMode;
 import net.luckperms.api.query.QueryOptions;
 import org.bukkit.Bukkit;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import saveroll.logging.Logger;
 
 import java.util.*;
@@ -23,11 +24,16 @@ public class PermsBaseManager extends DateBaseManager {
     private final String BONUS_NAME_FORMAT = "[bonusName]";
     private final String BONUS_ROLL_FORMAT = "[bonusRoll]";
     private final String PERMISSION_FORMAT = "rollplus.bonus."+BONUS_NAME_FORMAT+"."+BONUS_ROLL_FORMAT;
-    private static final Pattern PERMISSION_PATTERN = Pattern.compile("rollplus\\.bonus\\.([a-zA-Z0-9]+)\\.([0-9]+)");
+    private static final Pattern BONUS_COUNT_PATTERN = Pattern.compile("(-?[0-9]+)");
+    private static final Pattern BONUS_NAME_PATTERN = Pattern.compile("([a-zA-Z0-9_]+)");
+    private static final Pattern PERMISSION_PATTERN = Pattern.compile("rollplus\\.bonus\\."+BONUS_NAME_PATTERN.pattern()+"\\." + BONUS_COUNT_PATTERN.pattern());
     LuckPerms api = LuckPermsProvider.get();
 
     private String insertPermissionData(String bonusName, String bonusRoll) {
         return PERMISSION_FORMAT.replace(BONUS_NAME_FORMAT, bonusName).replace(BONUS_ROLL_FORMAT, bonusRoll);
+    }
+    private String insertPermissionData(String bonusName) {
+        return PERMISSION_FORMAT.replace(BONUS_NAME_FORMAT, bonusName).replace(BONUS_ROLL_FORMAT, BONUS_COUNT_PATTERN.pattern());
     }
 
     interface ParsedRoll {
@@ -61,15 +67,16 @@ public class PermsBaseManager extends DateBaseManager {
 
     @Override
     public void setRollForPlayer(UUID player, String bonusName, String bonusRoll) {
-        User user = api.getUserManager().getUser(player);
-        String permission = insertPermissionData(bonusName, bonusRoll);
-        if(user == null) {
-            Logger.warn("Право "+permission+" небыло установлено игроку "+ Bukkit.getOfflinePlayer(player).getName() + " из за неизвестной ошибки");
-            return;
-        }
-        user.getNodes(NodeType.PERMISSION).stream().filter(node->PERMISSION_PATTERN.matcher(node.getPermission()).matches()).toList().forEach(node->user.data().remove(node));
-        user.data().add(PermissionNode.builder(insertPermissionData(bonusName, bonusRoll)).build());
-        api.getUserManager().saveUser(user);
+            api.getUserManager().loadUser(player).thenAcceptAsync(user -> {
+            String permission = insertPermissionData(bonusName, bonusRoll);
+            if(user == null) {
+                Logger.warn("Право "+permission+" небыло установлено игроку "+ Bukkit.getOfflinePlayer(player).getName() + " из за неизвестной ошибки");
+                return;
+            }
+            user.getNodes(NodeType.PERMISSION).stream().filter(node->Pattern.compile(insertPermissionData(bonusName)).matcher(node.getPermission()).matches()).toList().forEach(node->user.data().remove(node));
+            user.data().add(PermissionNode.builder(insertPermissionData(bonusName, bonusRoll)).build());
+            api.getUserManager().saveUser(user);
+        });
 
     }
 
@@ -96,14 +103,14 @@ public class PermsBaseManager extends DateBaseManager {
             return 0;
         }
         for (Group inheritedGroup : user.getInheritedGroups(user.getQueryOptions().toBuilder().flag(Flag.RESOLVE_INHERITANCE, true).build())) {
-            Set<PermissionNode> collection = inheritedGroup.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, "([0-9]+)"))).collect(Collectors.toSet());
+            Set<PermissionNode> collection = inheritedGroup.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, BONUS_COUNT_PATTERN.pattern()))).collect(Collectors.toSet());
             ParsedRoll parsedRoll = getMaxLvlRollFromCollection(collection);
             if(parsedRoll != null) {
                 groupParsedRoll = parsedRoll;
                 break;
             }
         }
-        ParsedRoll parsedRoll = getMaxLvlRollFromCollection(user.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, "([0-9]+)"))).collect(Collectors.toSet()));
+        ParsedRoll parsedRoll = getMaxLvlRollFromCollection(user.getNodes(NodeType.PERMISSION).stream().filter(node -> node.getPermission().matches(insertPermissionData(bonusName, BONUS_COUNT_PATTERN.pattern()))).collect(Collectors.toSet()));
         if(parsedRoll != null && groupParsedRoll != null) {
             return Math.max(parsedRoll.getBonusRoll(), groupParsedRoll.getBonusRoll());
         }

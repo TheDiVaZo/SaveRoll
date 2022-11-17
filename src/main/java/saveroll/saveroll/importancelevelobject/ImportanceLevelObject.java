@@ -1,6 +1,4 @@
-package saveroll.saveroll;
-
-import org.bukkit.Material;
+package saveroll.saveroll.importancelevelobject;
 
 import java.util.Objects;
 

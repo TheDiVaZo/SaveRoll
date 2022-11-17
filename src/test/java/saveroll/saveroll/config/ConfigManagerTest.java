@@ -6,9 +6,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
-import saveroll.saveroll.bonus.EffectentBonus;
-import saveroll.saveroll.bonus.EquipmentBonus;
-import saveroll.saveroll.bonus.RiderBonus;
+import saveroll.saveroll.bonus.EffectentCondition;
+import saveroll.saveroll.bonus.EquipmentCondition;
+import saveroll.saveroll.bonus.RiderCondition;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,7 @@ class ConfigManagerTest {
         for (ConfigManager.RollConfig rollConfig : configManager.getRolls().values()) {
             String text = "\n";
             text += "equip {\n";
-            for (EquipmentBonus.ConfigEquipItemsParam configEquipItem : rollConfig.getConfigEquipItems()) {
+            for (EquipmentCondition.ConfigEquipItemsParam configEquipItem : rollConfig.getConfigEquipItems()) {
                 text += "   items: " + Arrays.toString(configEquipItem.getItems().toArray(new String[]{})) + "\n";
                 text += "   slots: " + Arrays.toString(configEquipItem.getSlots().toArray(new String[]{})) + "\n";
                 text += "   additional-rol: " + configEquipItem.getAdditionalRoll() + "\n";
@@ -39,7 +39,7 @@ class ConfigManagerTest {
             }
             text += "}\n";
             text += "potion {\n";
-            for (EffectentBonus.ConfigPotionEffectParam configPotionEffectParam : rollConfig.getConfigPotionEffect()) {
+            for (EffectentCondition.ConfigPotionEffectParam configPotionEffectParam : rollConfig.getConfigPotionEffect()) {
                 text += "   effects: " + Arrays.toString(configPotionEffectParam.getEffects().toArray(new String[]{})) + "\n";
                 text += "   additional-rol: " + configPotionEffectParam.getAdditionalRoll() + "\n";
                 text += "   count-effect: " + configPotionEffectParam.getCountEffects() + "\n";
@@ -47,7 +47,7 @@ class ConfigManagerTest {
             }
             text += "}\n";
             text += "rider {\n";
-            for (RiderBonus.ConfigRiderParam configRiderParam : rollConfig.getConfigRider()) {
+            for (RiderCondition.ConfigRiderParam configRiderParam : rollConfig.getConfigRider()) {
                 text += "   animals: " + Arrays.toString(configRiderParam.getAnimals().toArray(new String[]{})) + "\n";
                 text += "   armors: " + Arrays.toString(configRiderParam.getArmors().toArray(new String[0])) + "\n";
                 text += "   additional-rol: " + configRiderParam.getAdditionalRoll() + "\n";

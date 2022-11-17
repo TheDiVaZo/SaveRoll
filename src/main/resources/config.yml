@@ -29,6 +29,11 @@ bonusrolls:
     # %rollplus_defend_name% - имя ролла, на который идет плюс
     # %rollplus_defend_name_system% - системное имя ролла
     name: "&cЗащита" #имя ролла, которое должен видеть пользователь.
+    land:
+      land-packet-1:
+        lands:
+          - Паучья_Пещера
+        additional-roll: 0;
     equip:
       hard-armor: #любое название, оно не используется все равно.
         items: ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"]

@@ -10,21 +10,24 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
-import saveroll.saveroll.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.BanLevelObject;
+import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.NeutralLevelObject;
+import saveroll.saveroll.importancelevelobject.RequireLevelObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@PrepareForTest(EquipmentBonus.EquipmentSlotWrapper.class)
-class ItemBonusTest {
+@PrepareForTest(EquipmentCondition.EquipmentSlotWrapper.class)
+class ItemConditionTest {
     {
         Logger.init(new JULHandler(java.util.logging.Logger.getAnonymousLogger()));
     }
     @Test
     void generateBonus() throws Exception {
-        EquipmentBonus.ConfigEquipItemsParam configEquipArmors = new EquipmentBonus.ConfigEquipItemsParam() {
+        EquipmentCondition.ConfigEquipItemsParam configEquipArmors = new EquipmentCondition.ConfigEquipItemsParam() {
             @Override
             public @NotNull List<String> getItems() {
                 return new ArrayList<>(){{add("DIAMOND_HELMET"); add("DIAMOND_BOOTS"); add("DIAMOND_CHESTPLATE"); add("LEATHER_CHESTPLATE");}};
@@ -46,7 +49,7 @@ class ItemBonusTest {
             }
         };
 
-        EquipmentBonus.ConfigEquipItemsParam configEquipShield = new EquipmentBonus.ConfigEquipItemsParam() {
+        EquipmentCondition.ConfigEquipItemsParam configEquipShield = new EquipmentCondition.ConfigEquipItemsParam() {
             @Override
             public @NotNull List<String> getItems() {
                 return new ArrayList<>(){{add("*SHIELD");}};
@@ -68,7 +71,7 @@ class ItemBonusTest {
             }
         };
 
-        Bonus equipmentBonus = EquipmentBonus.generateBonus(configEquipArmors, configEquipShield);
+        Condition equipmentCondition = EquipmentCondition.generateBonus(configEquipArmors, configEquipShield);
 
         Player player = Mockito.mock(Player.class);
         PlayerInventory inventory = Mockito.mock(PlayerInventory.class);
@@ -95,14 +98,14 @@ class ItemBonusTest {
         Mockito.when(inventory.getItemInMainHand()).thenReturn(hand);
         Mockito.when(inventory.getItemInOffHand()).thenReturn(off_hand);
 
-        assertEquals(3, equipmentBonus.calculateRoll(player));
+        assertEquals(3, equipmentCondition.calculateRoll(player));
     }
 
     @Test
     void getBonusFromPlayer4() throws Exception {
         ArrayList<String> items = new ArrayList<>(){{add("LEATHER_HELMET"); add("LEATHER_CHESTPLATE");}};
         ArrayList<String> slots = new ArrayList<>(){{add("HEAD"); add("CHEST");}};
-        EquipmentBonus.ItemBonus itemBonus = EquipmentBonus.ItemBonus.generateItemBonus(items, slots, 0, 2);
+        EquipmentCondition.EquipmentBonus equipmentBonus = EquipmentCondition.EquipmentBonus.generateItemBonus(items, slots, 0, 2);
 
         Player player = Mockito.mock(Player.class);
         PlayerInventory inventory = Mockito.mock(PlayerInventory.class);
@@ -128,7 +131,7 @@ class ItemBonusTest {
         Mockito.when(inventory.getStorageContents()).thenReturn(null);
 
 
-        int result = itemBonus.getBonusFromPlayer(player);
+        int result = equipmentBonus.getBonusFromPlayer(player);
 
         int requiredResult = 2;
 
@@ -139,7 +142,7 @@ class ItemBonusTest {
     void getBonusFromPlayer3() throws Exception {
         ArrayList<String> items = new ArrayList<>(){{add("LEATHER_HELMET"); add("LEATHER_CHESTPLATE"); add("!diamond_boots"); add("!diamond_leggings");}};
         ArrayList<String> slots = new ArrayList<>(){{add("*HEAD"); add("*FEED"); add("*CHEST"); add("*LEGS");}};
-        EquipmentBonus.ItemBonus itemBonus = EquipmentBonus.ItemBonus.generateItemBonus(items, slots, 2, 2);
+        EquipmentCondition.EquipmentBonus equipmentBonus = EquipmentCondition.EquipmentBonus.generateItemBonus(items, slots, 2, 2);
 
         Player player = Mockito.mock(Player.class);
         PlayerInventory inventory = Mockito.mock(PlayerInventory.class);
@@ -165,7 +168,7 @@ class ItemBonusTest {
         Mockito.when(inventory.getStorageContents()).thenReturn(new ItemStack[]{new ItemStack(Material.DIAMOND_HELMET)});
 
 
-        int result = itemBonus.getBonusFromPlayer(player);
+        int result = equipmentBonus.getBonusFromPlayer(player);
 
         int requiredResult = 0;
 
@@ -176,7 +179,7 @@ class ItemBonusTest {
     void getBonusFromPlayer2() throws Exception {
         ArrayList<String> items = new ArrayList<>(){{add("*LEATHER_HELMET"); add("*diamond_helmet"); add("*diamond_boots"); add("!diamond_sword");}};
         ArrayList<String> slots = new ArrayList<>(){{add("HEAD"); add("*FEED"); add("!HAND"); add("inventory");}};
-        EquipmentBonus.ItemBonus itemBonus = EquipmentBonus.ItemBonus.generateItemBonus(items, slots, 2, 3);
+        EquipmentCondition.EquipmentBonus equipmentBonus = EquipmentCondition.EquipmentBonus.generateItemBonus(items, slots, 2, 3);
 
         Player player = Mockito.mock(Player.class);
         PlayerInventory inventory = Mockito.mock(PlayerInventory.class);
@@ -196,7 +199,7 @@ class ItemBonusTest {
         Mockito.when(inventory.getStorageContents()).thenReturn(new ItemStack[]{new ItemStack(Material.DIAMOND_HELMET)});
 
 
-        int result = itemBonus.getBonusFromPlayer(player);
+        int result = equipmentBonus.getBonusFromPlayer(player);
 
         int requiredResult = 3;
 
@@ -207,7 +210,7 @@ class ItemBonusTest {
     void getBonusFromPlayer1() throws Exception {
         ArrayList<String> items = new ArrayList<>(){{add("*diamond_helmet"); add("*diamond_boots"); add("!diamond_sword");}};
         ArrayList<String> slots = new ArrayList<>(){{add("*HEAD"); add("FEED"); add("!HAND");}};
-        EquipmentBonus.ItemBonus itemBonus = EquipmentBonus.ItemBonus.generateItemBonus(items, slots, 2, 3);
+        EquipmentCondition.EquipmentBonus equipmentBonus = EquipmentCondition.EquipmentBonus.generateItemBonus(items, slots, 2, 3);
 
         Player player = Mockito.mock(Player.class);
         PlayerInventory inventory = Mockito.mock(PlayerInventory.class);
@@ -227,7 +230,7 @@ class ItemBonusTest {
 
 
 
-        int result = itemBonus.getBonusFromPlayer(player);
+        int result = equipmentBonus.getBonusFromPlayer(player);
 
         int requiredResult = 3;
 
@@ -238,21 +241,21 @@ class ItemBonusTest {
     void generateItemBonus() throws Exception {
         ArrayList<String> items = new ArrayList<>(){{add("*diamond_helmet"); add("diamond_boots"); add("!diamond_sword");}};
         ArrayList<String> slots = new ArrayList<>(){{add("*FEED"); add("HEAD"); add("!INVENTORY");}};
-        EquipmentBonus.ItemBonus itemBonus = EquipmentBonus.ItemBonus.generateItemBonus(items, slots, 3, 3);
+        EquipmentCondition.EquipmentBonus equipmentBonus = EquipmentCondition.EquipmentBonus.generateItemBonus(items, slots, 3, 3);
 
         ArrayList<ImportanceLevelObject<Material>> itemsTest = new ArrayList<>();
-        ArrayList<ImportanceLevelObject<EquipmentBonus.EquipmentSlotWrapper>> slotsTest = new ArrayList<>();
-        itemsTest.add(new EquipmentBonus.RequiredItem(Material.DIAMOND_HELMET));
-        itemsTest.add(new EquipmentBonus.NeutralItem(Material.DIAMOND_BOOTS));
-        itemsTest.add(new EquipmentBonus.BanItem(Material.DIAMOND_SWORD));
+        ArrayList<ImportanceLevelObject<EquipmentCondition.EquipmentSlotWrapper>> slotsTest = new ArrayList<>();
+        itemsTest.add(new RequireLevelObject<>(Material.DIAMOND_HELMET));
+        itemsTest.add(new NeutralLevelObject<>(Material.DIAMOND_BOOTS));
+        itemsTest.add(new BanLevelObject<>(Material.DIAMOND_SWORD));
 
-        slotsTest.add(new EquipmentBonus.RequiredSlot(EquipmentBonus.EquipmentSlotWrapper.FEED));
-        slotsTest.add(new EquipmentBonus.NeutralSlot(EquipmentBonus.EquipmentSlotWrapper.HEAD));
-        slotsTest.add(new EquipmentBonus.BanSlot(EquipmentBonus.EquipmentSlotWrapper.INVENTORY));
+        slotsTest.add(new RequireLevelObject<>(EquipmentCondition.EquipmentSlotWrapper.FEED));
+        slotsTest.add(new NeutralLevelObject<>(EquipmentCondition.EquipmentSlotWrapper.HEAD));
+        slotsTest.add(new BanLevelObject<>(EquipmentCondition.EquipmentSlotWrapper.INVENTORY));
 
-        EquipmentBonus.ItemBonus resultItemBonus = EquipmentBonus.ItemBonus.class.getDeclaredConstructor(ArrayList.class, ArrayList.class, int.class, int.class).newInstance(itemsTest, slotsTest, 3,3);
+        EquipmentCondition.EquipmentBonus resultEquipmentBonus = EquipmentCondition.EquipmentBonus.class.getDeclaredConstructor(ArrayList.class, ArrayList.class, int.class, int.class).newInstance(itemsTest, slotsTest, 3,3);
 
 
-        assertTrue(itemBonus.equals(resultItemBonus));
+        assertTrue(equipmentBonus.equals(resultEquipmentBonus));
     }
 }

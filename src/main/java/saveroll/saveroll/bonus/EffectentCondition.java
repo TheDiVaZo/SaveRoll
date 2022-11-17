@@ -1,6 +1,5 @@
 package saveroll.saveroll.bonus;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -8,14 +7,16 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import saveroll.errors.NotExistMaterialException;
 import saveroll.errors.NotMatchPatternException;
-import saveroll.logging.Logger;
-import saveroll.saveroll.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.BanLevelObject;
+import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.NeutralLevelObject;
+import saveroll.saveroll.importancelevelobject.RequireLevelObject;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EffectentBonus extends Bonus{
+public class EffectentCondition extends Condition {
 
     private static final char REQUIED_SIGN = '*';
     private static final char BAN_SIGN = '!';
@@ -23,42 +24,67 @@ public class EffectentBonus extends Bonus{
 
     private final ArrayList<EffectBonus> effectBonuses;
 
-    protected static class RequiredEffect extends ImportanceLevelObject<PotionEffect> {
+    public enum MinecraftNamesEffects {
+        //spigot names
+        FAST_DIGGING (PotionEffectType.FAST_DIGGING),
+        SLOW (PotionEffectType.SLOW),
+        SLOW_DIGGING (PotionEffectType.SLOW_DIGGING),
+        INCREASE_DAMAGE (PotionEffectType.INCREASE_DAMAGE),
+        HEAL (PotionEffectType.HEAL),
+        HARM (PotionEffectType.HARM),
+        JUMP (PotionEffectType.JUMP),
+        CONFUSION (PotionEffectType.CONFUSION),
+        DAMAGE_RESISTANCE (PotionEffectType.DAMAGE_RESISTANCE),
+        UNLUCK (PotionEffectType.UNLUCK),
 
-        public RequiredEffect(PotionEffect effectType) {
-            super(effectType);
+        //Minecraft names
+        SPEED (PotionEffectType.SPEED),
+        SLOWNESS (PotionEffectType.SLOW),
+        HASTE (PotionEffectType.FAST_DIGGING),
+        MINING_FATIGUE (PotionEffectType.SLOW_DIGGING),
+        STRENGTH (PotionEffectType.INCREASE_DAMAGE),
+        INSTANT_HEALTH (PotionEffectType.HEAL),
+        INSTANT_DAMAGE (PotionEffectType.HARM),
+        JUMP_BOOST (PotionEffectType.JUMP),
+        NAUSEA (PotionEffectType.CONFUSION),
+        REGENERATION (PotionEffectType.REGENERATION),
+        RESISTANCE (PotionEffectType.DAMAGE_RESISTANCE),
+        FIRE_RESISTANCE (PotionEffectType.FIRE_RESISTANCE),
+        WATER_BREATHING (PotionEffectType.WATER_BREATHING),
+        INVISIBILITY (PotionEffectType.INVISIBILITY),
+        BLINDNESS (PotionEffectType.BLINDNESS),
+        NIGHT_VISION (PotionEffectType.NIGHT_VISION),
+        HUNGER (PotionEffectType.HUNGER),
+        WEAKNESS (PotionEffectType.WEAKNESS),
+        POISON (PotionEffectType.POISON),
+        WITHER (PotionEffectType.WITHER),
+        HEALTH_BOOST (PotionEffectType.HEALTH_BOOST),
+        ABSORPTION (PotionEffectType.ABSORPTION),
+        SATURATION (PotionEffectType.SATURATION),
+        GLOWING (PotionEffectType.GLOWING),
+        LEVITATION (PotionEffectType.LEVITATION),
+        LUCK (PotionEffectType.LUCK),
+        BAD_LUCK (PotionEffectType.UNLUCK),
+        SLOW_FALLING (PotionEffectType.SLOW_FALLING),
+        CONDUIT_POWER (PotionEffectType.CONDUIT_POWER),
+        DOLPHINS_GRACE (PotionEffectType.DOLPHINS_GRACE),
+        BAD_OMEN (PotionEffectType.BAD_OMEN),
+        HERO_OF_THE_VILLAGE (PotionEffectType.HERO_OF_THE_VILLAGE);
+
+        private final PotionEffectType effectTypeSpigot;
+        MinecraftNamesEffects(PotionEffectType effectTypeSpigot) {
+            this.effectTypeSpigot = effectTypeSpigot;
         }
 
-        @Override
-        public boolean isRequied() {
-            return true;
+        public PotionEffectType getEffectTypeSpigot() {
+            return effectTypeSpigot;
+        }
+
+        public PotionEffect createEffect(int duration, int amplifier) {
+            return effectTypeSpigot.createEffect(duration, amplifier);
         }
 
     }
-    protected static class NeutralEffect extends ImportanceLevelObject<PotionEffect> {
-
-        public NeutralEffect(PotionEffect effectType) {
-            super(effectType);
-        }
-
-        @Override
-        public boolean isNeutral() {
-            return true;
-        }
-
-    }
-    protected static class BanEffect extends ImportanceLevelObject<PotionEffect> {
-
-        public BanEffect(PotionEffect effectType) {
-            super(effectType);
-        }
-
-        @Override
-        public boolean isBan() {
-            return true;
-        }
-    }
-
     protected static class EffectBonus {
         protected ArrayList<ImportanceLevelObject<PotionEffect>> potionEffects;
         protected int countEffects;
@@ -90,21 +116,16 @@ public class EffectentBonus extends Bonus{
                         throw new NotMatchPatternException("Уровень "+effectLevel+" эффекта "+effectName+" указан некорректно. Проверьте конфиг на наличие опечаток.");
                     }
                 }
-                PotionEffect effectMinecraft;
-                PotionType effectType = getMaterialFromString("Эффекта "+effectName+" не существует! Проверьте конфиг на наличие опечаток." ,effectName, PotionType.class);
-                PotionEffectType potionEffectType = effectType.getEffectType();
-                if(potionEffectType == null) {
-                    throw new NotExistMaterialException("Зелья с эффектом "+effectName+" не существует. Пожалуйста, используйте эффекты, которые можно вызвать зельем");
-                }
-                effectMinecraft = new PotionEffect(potionEffectType, 0, effectLevel);
-                if(signImportance == REQUIED_SIGN) generatedEffects.add(new RequiredEffect(effectMinecraft));
-                else if(signImportance == BAN_SIGN) generatedEffects.add(new BanEffect(effectMinecraft));
-                else generatedEffects.add(new NeutralEffect(effectMinecraft));
+                PotionEffect effect = getMaterialFromString("Эффекта "+effectName+" не существует! Проверьте конфиг на наличие опечаток." ,effectName, MinecraftNamesEffects.class).createEffect(0, effectLevel);
+                if(signImportance == REQUIED_SIGN) generatedEffects.add(new RequireLevelObject<>(effect));
+                else if(signImportance == BAN_SIGN) generatedEffects.add(new BanLevelObject<>(effect));
+                else generatedEffects.add(new NeutralLevelObject<>(effect));
             }
             return generatedEffects;
         }
 
         public static EffectBonus generateEffectBonus(@NotNull List<String> potionEffectNames, int countEffects, int additionalRoll) throws NotMatchPatternException, NotExistMaterialException {
+
             return new EffectBonus(generateEffects(potionEffectNames), countEffects, additionalRoll);
         }
 
@@ -148,7 +169,7 @@ public class EffectentBonus extends Bonus{
         }
     }
     
-    public EffectentBonus(ArrayList<EffectBonus> effectBonuses) {
+    public EffectentCondition(ArrayList<EffectBonus> effectBonuses) {
         super("potion");
         this.effectBonuses = effectBonuses;
     }
@@ -185,9 +206,9 @@ public class EffectentBonus extends Bonus{
     }
 
     @NotNull
-    public static Bonus generateBonus(@NotNull ConfigPotionEffectParam ... configPotionEffectParams) throws NotMatchPatternException, NotExistMaterialException {
+    public static Condition generateBonus(@NotNull ConfigPotionEffectParam ... configPotionEffectParams) throws NotMatchPatternException, NotExistMaterialException {
         ArrayList<EffectBonus> effectPotionBonusesGenerate = new ArrayList<>();
-        EffectentBonus bonus = new EffectentBonus(effectPotionBonusesGenerate);
+        EffectentCondition bonus = new EffectentCondition(effectPotionBonusesGenerate);
         for (ConfigPotionEffectParam potionEffectParam : configPotionEffectParams) {
             EffectBonus effectBonus = EffectBonus.generateEffectBonus(potionEffectParam.getEffects(), potionEffectParam.getCountEffects(), potionEffectParam.getAdditionalRoll());
             effectPotionBonusesGenerate.add(effectBonus);
@@ -196,9 +217,9 @@ public class EffectentBonus extends Bonus{
     }
 
     @NotNull
-    public static Bonus generateBonus(@NotNull List<ConfigPotionEffectParam> configPotionEffectParams) throws NotMatchPatternException, NotExistMaterialException {
+    public static Condition generateBonus(@NotNull List<ConfigPotionEffectParam> configPotionEffectParams) throws NotMatchPatternException, NotExistMaterialException {
         ArrayList<EffectBonus> effectPotionBonusesGenerate = new ArrayList<>();
-        EffectentBonus bonus = new EffectentBonus(effectPotionBonusesGenerate);
+        EffectentCondition bonus = new EffectentCondition(effectPotionBonusesGenerate);
         for (ConfigPotionEffectParam potionEffectParam : configPotionEffectParams) {
             EffectBonus effectBonus = EffectBonus.generateEffectBonus(potionEffectParam.getEffects(), potionEffectParam.getCountEffects(), potionEffectParam.getAdditionalRoll());
             effectPotionBonusesGenerate.add(effectBonus);
@@ -211,6 +232,16 @@ public class EffectentBonus extends Bonus{
         return "EffectentBonus{" +
                 "effectBonuses=" + Arrays.toString(effectBonuses.toArray()) +
                 '}';
+    }
+
+    public static PotionEffectType getMaterialFromString(String errorMSG,String itemName) throws NotExistMaterialException {
+        PotionEffectType object;
+        try {
+            object = Objects.requireNonNull(PotionEffectType.getByName(itemName.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new  NotExistMaterialException(errorMSG, e);
+        }
+        return object;
     }
 }
 

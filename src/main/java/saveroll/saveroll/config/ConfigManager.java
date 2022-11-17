@@ -3,12 +3,11 @@ package saveroll.saveroll.config;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import saveroll.logging.Logger;
-import saveroll.saveroll.bonus.EffectentBonus;
-import saveroll.saveroll.bonus.EquipmentBonus;
-import saveroll.saveroll.bonus.RiderBonus;
+import saveroll.saveroll.bonus.EffectentCondition;
+import saveroll.saveroll.bonus.EquipmentCondition;
+import saveroll.saveroll.bonus.RiderCondition;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class ConfigManager {
 //    interface MySQL {
@@ -22,9 +21,9 @@ public class ConfigManager {
         String getSystemName();
         String getName();
 
-        ArrayList<EffectentBonus.ConfigPotionEffectParam> getConfigPotionEffect();
-        ArrayList<EquipmentBonus.ConfigEquipItemsParam> getConfigEquipItems();
-        ArrayList<RiderBonus.ConfigRiderParam> getConfigRider();
+        ArrayList<EffectentCondition.ConfigPotionEffectParam> getConfigPotionEffect();
+        ArrayList<EquipmentCondition.ConfigEquipItemsParam> getConfigEquipItems();
+        ArrayList<RiderCondition.ConfigRiderParam> getConfigRider();
     }
 
 //    private MySQL mySQLConfig = new MySQL() {
@@ -118,9 +117,9 @@ public class ConfigManager {
             if(gameName == null) gameName = "Roll"+Math.round(Math.random() * 100000000);
 
 
-            ArrayList<EquipmentBonus.ConfigEquipItemsParam> configEquipItemsParams = new ArrayList<>();
-            ArrayList<EffectentBonus.ConfigPotionEffectParam> configPotionEffectParams = new ArrayList<>();
-            ArrayList<RiderBonus.ConfigRiderParam> configRiderParams = new ArrayList<>();
+            ArrayList<EquipmentCondition.ConfigEquipItemsParam> configEquipItemsParams = new ArrayList<>();
+            ArrayList<EffectentCondition.ConfigPotionEffectParam> configPotionEffectParams = new ArrayList<>();
+            ArrayList<RiderCondition.ConfigRiderParam> configRiderParams = new ArrayList<>();
 
             if(bonusConfigSection.isConfigurationSection("equip")) {
                 Map<String, Object> equip = bonusConfigSection.getConfigurationSection("equip").getValues(false);
@@ -131,7 +130,7 @@ public class ConfigManager {
                     int rollSlots = itemComplect.getInt("fill-slot");
                     int additionalRoll = itemComplect.getInt("additional-roll");
                     if(rollSlots == -1) rollSlots = slots.size();
-                    configEquipItemsParams.add(EquipmentBonus.generateConfig(items, slots, rollSlots, additionalRoll));
+                    configEquipItemsParams.add(EquipmentCondition.generateConfig(items, slots, rollSlots, additionalRoll));
                 }
             }
             if(bonusConfigSection.isConfigurationSection("potion")) {
@@ -141,7 +140,7 @@ public class ConfigManager {
                     List<String> effects = getAlwaysArrayList("effects", potionComplect);
                     int countEffects = potionComplect.getInt("count-effects");
                     int additionalRoll = potionComplect.getInt("additional-roll");
-                    configPotionEffectParams.add(EffectentBonus.generateConfig(effects, countEffects, additionalRoll));
+                    configPotionEffectParams.add(EffectentCondition.generateConfig(effects, countEffects, additionalRoll));
                 }
             }
             if(bonusConfigSection.isConfigurationSection("rider")) {
@@ -153,7 +152,7 @@ public class ConfigManager {
                     List<String> armors = getAlwaysArrayList("armors", animalsComplect);
                     Logger.debug(Arrays.toString(armors.toArray(new String[0])) + " updateRolls Config! " +key+ " - element armors");
                     int additionalRoll = animalsComplect.getInt("additional-roll");
-                    configRiderParams.add(RiderBonus.generateConfig(animals, armors, additionalRoll));
+                    configRiderParams.add(RiderCondition.generateConfig(animals, armors, additionalRoll));
                 }
             }
 
@@ -170,17 +169,17 @@ public class ConfigManager {
                 }
 
                 @Override
-                public ArrayList<EffectentBonus.ConfigPotionEffectParam> getConfigPotionEffect() {
+                public ArrayList<EffectentCondition.ConfigPotionEffectParam> getConfigPotionEffect() {
                     return configPotionEffectParams;
                 }
 
                 @Override
-                public ArrayList<EquipmentBonus.ConfigEquipItemsParam> getConfigEquipItems() {
+                public ArrayList<EquipmentCondition.ConfigEquipItemsParam> getConfigEquipItems() {
                     return configEquipItemsParams;
                 }
 
                 @Override
-                public ArrayList<RiderBonus.ConfigRiderParam> getConfigRider() {
+                public ArrayList<RiderCondition.ConfigRiderParam> getConfigRider() {
                     return configRiderParams;
                 }
 

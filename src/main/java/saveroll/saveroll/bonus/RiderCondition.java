@@ -1,6 +1,5 @@
 package saveroll.saveroll.bonus;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
@@ -11,16 +10,16 @@ import saveroll.logging.Logger;
 
 import java.util.*;
 
-public class RiderBonus extends Bonus {
+public class RiderCondition extends Condition {
 
-    private final ArrayList<AnimalsBonus> animalsBonuses;
+    private final ArrayList<RiderBonus> riderBonuses;
 
-    protected static class AnimalsBonus{
+    protected static class RiderBonus {
         protected ArrayList<EntityType> entities;
         protected ArrayList<Material> armors;
         protected int additionalRoll;
 
-        public AnimalsBonus(ArrayList<EntityType> entities, ArrayList<Material> armors, int additionalRoll) {
+        public RiderBonus(ArrayList<EntityType> entities, ArrayList<Material> armors, int additionalRoll) {
             this.entities = entities;
             this.armors = armors;
             this.additionalRoll = additionalRoll;
@@ -46,8 +45,8 @@ public class RiderBonus extends Bonus {
             return generatedArmors;
         }
 
-        public static AnimalsBonus generateAnimalsBonus(@NotNull List<String> entitiesNames, @NotNull List<String> armorsNames, int additionalRoll) throws NotExistMaterialException {
-            return new AnimalsBonus(generateEntities(entitiesNames), generateArmors(armorsNames), additionalRoll);
+        public static RiderBonus generateAnimalsBonus(@NotNull List<String> entitiesNames, @NotNull List<String> armorsNames, int additionalRoll) throws NotExistMaterialException {
+            return new RiderBonus(generateEntities(entitiesNames), generateArmors(armorsNames), additionalRoll);
         }
 
         private boolean isEquipArmorOfEntity(Material armor, LivingEntity entity) {
@@ -72,15 +71,15 @@ public class RiderBonus extends Bonus {
         }
     }
 
-    protected RiderBonus(ArrayList<AnimalsBonus> animalsBonuses) {
+    protected RiderCondition(ArrayList<RiderBonus> riderBonuses) {
         super("rider");
-        this.animalsBonuses = animalsBonuses;
+        this.riderBonuses = riderBonuses;
     }
 
     @Override
     public int calculateRoll(Player player) {
-        if(animalsBonuses.isEmpty()) return 0;
-        return animalsBonuses.stream().map(animalsBonus -> animalsBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
+        if(riderBonuses.isEmpty()) return 0;
+        return riderBonuses.stream().map(riderBonus -> riderBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 
     public interface ConfigRiderParam extends ConfigParam {
@@ -108,22 +107,22 @@ public class RiderBonus extends Bonus {
         };
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull ConfigRiderParam...configRiderParams) throws NotExistMaterialException {
-        ArrayList<AnimalsBonus> animalsBonuses = new ArrayList<>();
-        RiderBonus bonus = new RiderBonus(animalsBonuses);
+    @NotNull public static Condition generateBonus(@NotNull ConfigRiderParam...configRiderParams) throws NotExistMaterialException {
+        ArrayList<RiderBonus> riderBonuses = new ArrayList<>();
+        RiderCondition bonus = new RiderCondition(riderBonuses);
         for (ConfigRiderParam riderParam : configRiderParams) {
-            AnimalsBonus animalsBonus = AnimalsBonus.generateAnimalsBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
-            animalsBonuses.add(animalsBonus);
+            RiderBonus riderBonus = RiderBonus.generateAnimalsBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
+            riderBonuses.add(riderBonus);
         }
         return bonus;
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull List<ConfigRiderParam> configRiderParams) throws NotExistMaterialException {
-        ArrayList<AnimalsBonus> animalsBonuses = new ArrayList<>();
-        RiderBonus bonus = new RiderBonus(animalsBonuses);
+    @NotNull public static Condition generateBonus(@NotNull List<ConfigRiderParam> configRiderParams) throws NotExistMaterialException {
+        ArrayList<RiderBonus> riderBonuses = new ArrayList<>();
+        RiderCondition bonus = new RiderCondition(riderBonuses);
         for (ConfigRiderParam riderParam : configRiderParams) {
-            AnimalsBonus animalsBonus = AnimalsBonus.generateAnimalsBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
-            animalsBonuses.add(animalsBonus);
+            RiderBonus riderBonus = RiderBonus.generateAnimalsBonus(riderParam.getAnimals(), riderParam.getArmors(), riderParam.getAdditionalRoll());
+            riderBonuses.add(riderBonus);
         }
         return bonus;
     }

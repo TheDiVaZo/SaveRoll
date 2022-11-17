@@ -17,13 +17,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EffectentBonusTest {
+class EffectentConditionTest {
     {
         Logger.init(new JULHandler(java.util.logging.Logger.getAnonymousLogger()));
     }
     @Test
     void calculateRoll() throws NotExistMaterialException, NotMatchPatternException {
-        EffectentBonus.ConfigPotionEffectParam configPotionEffectParam = new EffectentBonus.ConfigPotionEffectParam() {
+        EffectentCondition.ConfigPotionEffectParam configPotionEffectParam = new EffectentCondition.ConfigPotionEffectParam() {
             @Override
             public @NotNull List<String> getEffects() {
                 return new ArrayList<>(){{add("*speed:1");add("!slowness:1");}};
@@ -48,7 +48,7 @@ class EffectentBonusTest {
         assert PotionType.STRENGTH.getEffectType() != null;
         Mockito.when(player.getPotionEffect(PotionType.STRENGTH.getEffectType())).thenReturn(new PotionEffect(PotionType.STRENGTH.getEffectType(), 1, 1));
 
-        int result = EffectentBonus.generateBonus(configPotionEffectParam).calculateRoll(player);
+        int result = EffectentCondition.generateBonus(configPotionEffectParam).calculateRoll(player);
         assertEquals(2, result);
     }
 }

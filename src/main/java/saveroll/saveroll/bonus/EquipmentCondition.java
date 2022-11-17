@@ -7,86 +7,19 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import saveroll.errors.NotExistMaterialException;
 import saveroll.logging.Logger;
-import saveroll.saveroll.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.BanLevelObject;
+import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.NeutralLevelObject;
+import saveroll.saveroll.importancelevelobject.RequireLevelObject;
 
 import java.util.*;
 
-public class EquipmentBonus extends Bonus{
+public class EquipmentCondition extends Condition {
     
     private static final char REQUIED_SIGN = '*';
     private static final char BAN_SIGN = '!';
 
-    private final ArrayList<ItemBonus> itemBonuses;
-
-    protected static class RequiredItem extends ImportanceLevelObject<Material> {
-
-        public RequiredItem(Material item) {
-            super(item);
-        }
-
-        @Override
-        public boolean isRequied() {
-            return true;
-        }
-        
-    }
-    protected static class NeutralItem extends ImportanceLevelObject<Material> {
-
-        public NeutralItem(Material item) {
-            super(item);
-        }
-
-        @Override
-        public boolean isNeutral() {
-            return true;
-        }
-    }
-    protected static class BanItem extends ImportanceLevelObject<Material> {
-
-        public BanItem(Material item) {
-            super(item);
-        }
-        
-        @Override
-        public boolean isBan() {
-            return true;
-        }
-    }
-
-    protected static class RequiredSlot extends ImportanceLevelObject<EquipmentSlotWrapper> {
-
-        public RequiredSlot(EquipmentSlotWrapper item) {
-            super(item);
-        }
-
-        @Override
-        public boolean isRequied() {
-            return true;
-        }
-
-    }
-    protected static class NeutralSlot extends ImportanceLevelObject<EquipmentSlotWrapper> {
-
-        public NeutralSlot(EquipmentSlotWrapper item) {
-            super(item);
-        }
-
-        @Override
-        public boolean isNeutral() {
-            return true;
-        }
-    }
-    protected static class BanSlot extends ImportanceLevelObject<EquipmentSlotWrapper> {
-
-        public BanSlot(EquipmentSlotWrapper item) {
-            super(item);
-        }
-
-        @Override
-        public boolean isBan() {
-            return true;
-        }
-    }
+    private final ArrayList<EquipmentBonus> equipmentBonuses;
 
     protected enum EquipmentSlotWrapper {
         FEED {
@@ -150,13 +83,13 @@ public class EquipmentBonus extends Bonus{
         public abstract boolean isEquipMaterial(PlayerInventory inventory, Material material);
     }
 
-    protected static class ItemBonus {
+    protected static class EquipmentBonus {
         protected ArrayList<ImportanceLevelObject<Material>> items;
         protected ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> slots;
         protected int fillSlots;
         protected int additionalRoll;
 
-        protected ItemBonus(ArrayList<ImportanceLevelObject<Material>> items, ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> slots, int fillSlots, int additionalRoll) {
+        protected EquipmentBonus(ArrayList<ImportanceLevelObject<Material>> items, ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> slots, int fillSlots, int additionalRoll) {
             this.items = items;
             this.slots = slots;
             this.fillSlots = fillSlots;
@@ -176,9 +109,9 @@ public class EquipmentBonus extends Bonus{
                     Logger.error("Материал "+itemName+" не является действительным! Пожалуйста, проверьте конфиг на наличие опечаток.");
                     continue;
                 }
-                if(signImportance == REQUIED_SIGN) materialItems.add(new RequiredItem(itemMaterial));
-                else if(signImportance == BAN_SIGN) materialItems.add(new BanItem(itemMaterial));
-                else materialItems.add(new NeutralItem(itemMaterial));
+                if(signImportance == REQUIED_SIGN) materialItems.add(new RequireLevelObject<>(itemMaterial));
+                else if(signImportance == BAN_SIGN) materialItems.add(new BanLevelObject<>(itemMaterial));
+                else materialItems.add(new NeutralLevelObject<>(itemMaterial));
             }
             return materialItems;
         }
@@ -189,15 +122,15 @@ public class EquipmentBonus extends Bonus{
                 char signImportance = slotName.charAt(0);
                 slotName = slotName.replaceFirst("^([\\!\\*])+", "");
                 EquipmentSlotWrapper equipmentWrapperSlot = getMaterialFromString("Слота с названием "+slotName+" не существует! Проверьте корректность слова", slotName, EquipmentSlotWrapper.class);
-                if(signImportance == REQUIED_SIGN) equipmentWrapperSlots.add(new RequiredSlot(equipmentWrapperSlot));
-                else if(signImportance == BAN_SIGN) equipmentWrapperSlots.add(new BanSlot(equipmentWrapperSlot));
-                else equipmentWrapperSlots.add(new NeutralSlot(equipmentWrapperSlot));
+                if(signImportance == REQUIED_SIGN) equipmentWrapperSlots.add(new RequireLevelObject<>(equipmentWrapperSlot));
+                else if(signImportance == BAN_SIGN) equipmentWrapperSlots.add(new BanLevelObject<>(equipmentWrapperSlot));
+                else equipmentWrapperSlots.add(new NeutralLevelObject<>(equipmentWrapperSlot));
             }
             return equipmentWrapperSlots;
         }
         
-        public static ItemBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) throws NotExistMaterialException {
-            return new ItemBonus(generateItems(items), generateSlots(slots), fillSlots, additionalRoll);
+        public static EquipmentBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) throws NotExistMaterialException {
+            return new EquipmentBonus(generateItems(items), generateSlots(slots), fillSlots, additionalRoll);
         }
 
         private boolean isRequiredItemInSlotForPlayer(PlayerInventory inventory, EquipmentSlotWrapper slot ,Material item) {
@@ -240,9 +173,9 @@ public class EquipmentBonus extends Bonus{
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof ItemBonus)) return false;
-            ItemBonus itemBonus = (ItemBonus) o;
-            return fillSlots == itemBonus.fillSlots && additionalRoll == itemBonus.additionalRoll && items.equals(itemBonus.items) && slots.equals(itemBonus.slots);
+            if (!(o instanceof EquipmentBonus)) return false;
+            EquipmentBonus equipmentBonus = (EquipmentBonus) o;
+            return fillSlots == equipmentBonus.fillSlots && additionalRoll == equipmentBonus.additionalRoll && items.equals(equipmentBonus.items) && slots.equals(equipmentBonus.slots);
         }
 
         @Override
@@ -251,16 +184,16 @@ public class EquipmentBonus extends Bonus{
         }
     }
 
-    protected EquipmentBonus(ArrayList<ItemBonus> itemBonuses) {
+    protected EquipmentCondition(ArrayList<EquipmentBonus> equipmentBonuses) {
         super("equip");
-        this.itemBonuses = itemBonuses;
+        this.equipmentBonuses = equipmentBonuses;
     }
 
 
     @Override
     public int calculateRoll(Player player) {
-        if(itemBonuses.isEmpty()) return 0;
-        return itemBonuses.stream().map(itemBonus -> itemBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
+        if(equipmentBonuses.isEmpty()) return 0;
+        return equipmentBonuses.stream().map(equipmentBonus -> equipmentBonus.getBonusFromPlayer(player)).reduce(Integer::sum).get();
     }
 
     public interface ConfigEquipItemsParam extends ConfigParam {
@@ -294,22 +227,22 @@ public class EquipmentBonus extends Bonus{
         };
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) throws NotExistMaterialException {
-        ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
-        EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
+    @NotNull public static Condition generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) throws NotExistMaterialException {
+        ArrayList<EquipmentBonus> equipmentBonusesGenerate = new ArrayList<>();
+        EquipmentCondition bonus = new EquipmentCondition(equipmentBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {
-            ItemBonus itemBonus = ItemBonus.generateItemBonus(equipItemsParam.getItems(), equipItemsParam.getSlots(), equipItemsParam.getFillSlots(), equipItemsParam.getAdditionalRoll());
-            itemBonusesGenerate.add(itemBonus);
+            EquipmentBonus equipmentBonus = EquipmentBonus.generateItemBonus(equipItemsParam.getItems(), equipItemsParam.getSlots(), equipItemsParam.getFillSlots(), equipItemsParam.getAdditionalRoll());
+            equipmentBonusesGenerate.add(equipmentBonus);
         }
         return bonus;
     }
 
-    @NotNull public static Bonus generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) throws NotExistMaterialException {
-        ArrayList<ItemBonus> itemBonusesGenerate = new ArrayList<>();
-        EquipmentBonus bonus = new EquipmentBonus(itemBonusesGenerate);
+    @NotNull public static Condition generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) throws NotExistMaterialException {
+        ArrayList<EquipmentBonus> equipmentBonusesGenerate = new ArrayList<>();
+        EquipmentCondition bonus = new EquipmentCondition(equipmentBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {
-            ItemBonus itemBonus = ItemBonus.generateItemBonus(equipItemsParam.getItems(), equipItemsParam.getSlots(), equipItemsParam.getFillSlots(), equipItemsParam.getAdditionalRoll());
-            itemBonusesGenerate.add(itemBonus);
+            EquipmentBonus equipmentBonus = EquipmentBonus.generateItemBonus(equipItemsParam.getItems(), equipItemsParam.getSlots(), equipItemsParam.getFillSlots(), equipItemsParam.getAdditionalRoll());
+            equipmentBonusesGenerate.add(equipmentBonus);
         }
         return bonus;
     }

@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RiderBonusTest {
+class RiderConditionTest {
 
     @Test
     void calculateRoll() {

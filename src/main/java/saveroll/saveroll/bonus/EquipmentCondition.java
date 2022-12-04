@@ -1,11 +1,12 @@
 package saveroll.saveroll.bonus;
 
+import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
-import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotExistObjectFromStringException;
 import saveroll.logging.Logger;
 import saveroll.saveroll.importancelevelobject.BanLevelObject;
 import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
@@ -15,9 +16,6 @@ import saveroll.saveroll.importancelevelobject.RequireLevelObject;
 import java.util.*;
 
 public class EquipmentCondition extends Condition {
-    
-    private static final char REQUIED_SIGN = '*';
-    private static final char BAN_SIGN = '!';
 
     private final ArrayList<EquipmentBonus> equipmentBonuses;
 
@@ -115,13 +113,13 @@ public class EquipmentCondition extends Condition {
             }
             return materialItems;
         }
-        private static ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> generateSlots(@NotNull List<String> slots) throws NotExistMaterialException {
+        private static ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> generateSlots(@NotNull List<String> slots) throws NotExistObjectFromStringException {
             ArrayList<ImportanceLevelObject<EquipmentSlotWrapper>> equipmentWrapperSlots = new ArrayList<>();
             for (String slotName : slots) {
                 if(slotName == null) continue;
                 char signImportance = slotName.charAt(0);
                 slotName = slotName.replaceFirst("^([\\!\\*])+", "");
-                EquipmentSlotWrapper equipmentWrapperSlot = getMaterialFromString("Слота с названием "+slotName+" не существует! Проверьте корректность слова", slotName, EquipmentSlotWrapper.class);
+                EquipmentSlotWrapper equipmentWrapperSlot = getObjectFromString(slotName, EquipmentSlotWrapper.class);
                 if(signImportance == REQUIED_SIGN) equipmentWrapperSlots.add(new RequireLevelObject<>(equipmentWrapperSlot));
                 else if(signImportance == BAN_SIGN) equipmentWrapperSlots.add(new BanLevelObject<>(equipmentWrapperSlot));
                 else equipmentWrapperSlots.add(new NeutralLevelObject<>(equipmentWrapperSlot));
@@ -129,7 +127,7 @@ public class EquipmentCondition extends Condition {
             return equipmentWrapperSlots;
         }
         
-        public static EquipmentBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) throws NotExistMaterialException {
+        public static EquipmentBonus generateItemBonus(@NotNull List<String> items, @NotNull List<String> slots, int fillSlots, int additionalRoll) throws NotExistObjectFromStringException {
             return new EquipmentBonus(generateItems(items), generateSlots(slots), fillSlots, additionalRoll);
         }
 
@@ -227,7 +225,7 @@ public class EquipmentCondition extends Condition {
         };
     }
 
-    @NotNull public static Condition generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) throws NotExistMaterialException {
+    @NotNull public static Condition generateBonus(@NotNull ConfigEquipItemsParam ... configEquipItemsParam) throws NotExistObjectFromStringException {
         ArrayList<EquipmentBonus> equipmentBonusesGenerate = new ArrayList<>();
         EquipmentCondition bonus = new EquipmentCondition(equipmentBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {
@@ -237,7 +235,7 @@ public class EquipmentCondition extends Condition {
         return bonus;
     }
 
-    @NotNull public static Condition generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) throws NotExistMaterialException {
+    @NotNull public static Condition generateBonus(@NotNull List<ConfigEquipItemsParam>  configEquipItemsParam) throws NotExistObjectFromStringException {
         ArrayList<EquipmentBonus> equipmentBonusesGenerate = new ArrayList<>();
         EquipmentCondition bonus = new EquipmentCondition(equipmentBonusesGenerate);
         for (ConfigEquipItemsParam equipItemsParam : configEquipItemsParam) {

@@ -6,7 +6,7 @@
 
     <groupId>SaveRoll</groupId>
     <artifactId>SaveRoll</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -44,6 +44,10 @@
                         <relocation>
                             <pattern>co.aikar.locales</pattern>
                             <shadedPattern>saveroll.saveroll.locales</shadedPattern> <!-- Replace this -->
+                        </relocation>
+                        <relocation>
+                            <pattern>de.tr7zw.changeme.nbtapi</pattern>
+                            <shadedPattern>saveroll.saveroll.nbtapi</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -105,9 +109,19 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>de.tr7zw</groupId>
+            <artifactId>item-nbt-api-plugin</artifactId>
+            <version>2.10.0</version>
+        </dependency>
         <dependency>
             <groupId>com.github.angeschossen</groupId>
             <artifactId>LandsAPI</artifactId>

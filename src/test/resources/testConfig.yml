@@ -1,0 +1,21 @@
+#author - TheDiVaZo
+#Специально для https://votiverp.com
+
+varsion: 1.0 #version of config
+
+mysql:
+  server_url: "jdbc:mysql://127.0.0.1/basedata"
+  name: "username"
+  pass: "password"
+  dataSourceProperty:
+    cachePrepStmts: true
+    prepStmtCacheSize: 250
+    prepStmtCacheSqlLimit: 2048
+    #и другие...
+
+bonusrolls:
+  defend:
+    placeholder: "defend" #-> %rollplus_defend%
+    defend1:
+      type: "EQUIP"
+      slots: "ARMOR"

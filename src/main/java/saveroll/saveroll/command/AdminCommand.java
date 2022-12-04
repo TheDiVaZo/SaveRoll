@@ -5,7 +5,7 @@ import co.aikar.commands.BaseCommand;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotExistObjectFromStringException;
 import saveroll.errors.NotMatchPatternException;
 import saveroll.logging.Logger;
 import saveroll.saveroll.SaveRoll;
@@ -62,7 +62,7 @@ public class AdminCommand extends BaseCommand {
         try {
             saveRoll.reloadPlugin();
             sendPrivateMessage(player,"&eКонфиг был перезагружен.");
-        } catch (NotExistMaterialException | NotMatchPatternException e) {
+        } catch (NotExistObjectFromStringException | NotMatchPatternException e) {
             sendPrivateMessage(player,"&cОшибка при выполнении команды: &e"+e.getMessage());
             Logger.error(e.getMessage());
             e.printStackTrace();

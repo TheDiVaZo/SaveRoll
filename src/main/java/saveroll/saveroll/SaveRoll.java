@@ -3,7 +3,7 @@ package saveroll.saveroll;
 import co.aikar.commands.PaperCommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotExistObjectFromStringException;
 import saveroll.errors.NotMatchPatternException;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
@@ -60,7 +60,7 @@ public class SaveRoll extends JavaPlugin {
         getConfigManager().updateFileConfiguration(getConfig());
         try {
             generateRolls();
-        } catch (NotExistMaterialException | NotMatchPatternException e) {
+        } catch (NotExistObjectFromStringException | NotMatchPatternException e) {
             Logger.error(e.getMessage());
             e.printStackTrace();
         }
@@ -81,7 +81,7 @@ public class SaveRoll extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public void generateRolls() throws NotExistMaterialException, NotMatchPatternException {
+    public void generateRolls() throws NotExistObjectFromStringException, NotMatchPatternException {
         Map<String, Roll> rollMap = new HashMap<>();
         for (Map.Entry<String, ConfigManager.RollConfig> rollsConfigEntry : getConfigManager().getRolls().entrySet()) {
             ConfigManager.RollConfig rollConfig = rollsConfigEntry.getValue();
@@ -102,7 +102,7 @@ public class SaveRoll extends JavaPlugin {
         Logger.info("Rolls has been loaded");
     }
 
-    public void reloadPlugin() throws NotExistMaterialException, NotMatchPatternException {
+    public void reloadPlugin() throws NotExistObjectFromStringException, NotMatchPatternException {
         reloadConfig();
         saveConfig();
         getConfigManager().updateFileConfiguration(getConfig());

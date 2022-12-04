@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotExistObjectFromStringException;
 import saveroll.errors.NotMatchPatternException;
 import saveroll.logging.JULHandler;
 import saveroll.logging.Logger;
@@ -22,7 +22,7 @@ class EffectentConditionTest {
         Logger.init(new JULHandler(java.util.logging.Logger.getAnonymousLogger()));
     }
     @Test
-    void calculateRoll() throws NotExistMaterialException, NotMatchPatternException {
+    void calculateRoll() throws NotExistObjectFromStringException, NotMatchPatternException {
         EffectentCondition.ConfigPotionEffectParam configPotionEffectParam = new EffectentCondition.ConfigPotionEffectParam() {
             @Override
             public @NotNull List<String> getEffects() {

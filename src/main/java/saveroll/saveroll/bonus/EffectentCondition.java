@@ -3,9 +3,8 @@ package saveroll.saveroll.bonus;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
-import saveroll.errors.NotExistMaterialException;
+import saveroll.errors.NotExistObjectFromStringException;
 import saveroll.errors.NotMatchPatternException;
 import saveroll.saveroll.importancelevelobject.BanLevelObject;
 import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
@@ -17,9 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EffectentCondition extends Condition {
-
-    private static final char REQUIED_SIGN = '*';
-    private static final char BAN_SIGN = '!';
     private static final String EFFECT_CONFIG_REGEX = "[*!]?([a-z_A-Z]+)\\:([0-9]{0,3})";
 
     private final ArrayList<EffectBonus> effectBonuses;
@@ -96,7 +92,7 @@ public class EffectentCondition extends Condition {
             this.additionalRoll = additionalRoll;
         }
 
-        private static ArrayList<ImportanceLevelObject<PotionEffect>> generateEffects(@NotNull List<String> potionEffectNames) throws NotMatchPatternException, NotExistMaterialException {
+        private static ArrayList<ImportanceLevelObject<PotionEffect>> generateEffects(@NotNull List<String> potionEffectNames) throws NotMatchPatternException, NotExistObjectFromStringException {
             ArrayList<ImportanceLevelObject<PotionEffect>> generatedEffects = new ArrayList<>();
             for (String effectFormat : potionEffectNames)  {
                 if(Objects.isNull(effectFormat)) continue;
@@ -116,7 +112,7 @@ public class EffectentCondition extends Condition {
                         throw new NotMatchPatternException("Уровень "+effectLevel+" эффекта "+effectName+" указан некорректно. Проверьте конфиг на наличие опечаток.");
                     }
                 }
-                PotionEffect effect = getMaterialFromString("Эффекта "+effectName+" не существует! Проверьте конфиг на наличие опечаток." ,effectName, MinecraftNamesEffects.class).createEffect(0, effectLevel);
+                PotionEffect effect = getObjectFromString(effectName, MinecraftNamesEffects.class).createEffect(0, effectLevel);
                 if(signImportance == REQUIED_SIGN) generatedEffects.add(new RequireLevelObject<>(effect));
                 else if(signImportance == BAN_SIGN) generatedEffects.add(new BanLevelObject<>(effect));
                 else generatedEffects.add(new NeutralLevelObject<>(effect));
@@ -124,7 +120,7 @@ public class EffectentCondition extends Condition {
             return generatedEffects;
         }
 
-        public static EffectBonus generateEffectBonus(@NotNull List<String> potionEffectNames, int countEffects, int additionalRoll) throws NotMatchPatternException, NotExistMaterialException {
+        public static EffectBonus generateEffectBonus(@NotNull List<String> potionEffectNames, int countEffects, int additionalRoll) throws NotMatchPatternException, NotExistObjectFromStringException {
 
             return new EffectBonus(generateEffects(potionEffectNames), countEffects, additionalRoll);
         }
@@ -206,7 +202,7 @@ public class EffectentCondition extends Condition {
     }
 
     @NotNull
-    public static Condition generateBonus(@NotNull ConfigPotionEffectParam ... configPotionEffectParams) throws NotMatchPatternException, NotExistMaterialException {
+    public static Condition generateBonus(@NotNull ConfigPotionEffectParam ... configPotionEffectParams) throws NotMatchPatternException, NotExistObjectFromStringException {
         ArrayList<EffectBonus> effectPotionBonusesGenerate = new ArrayList<>();
         EffectentCondition bonus = new EffectentCondition(effectPotionBonusesGenerate);
         for (ConfigPotionEffectParam potionEffectParam : configPotionEffectParams) {
@@ -217,7 +213,7 @@ public class EffectentCondition extends Condition {
     }
 
     @NotNull
-    public static Condition generateBonus(@NotNull List<ConfigPotionEffectParam> configPotionEffectParams) throws NotMatchPatternException, NotExistMaterialException {
+    public static Condition generateBonus(@NotNull List<ConfigPotionEffectParam> configPotionEffectParams) throws NotMatchPatternException, NotExistObjectFromStringException {
         ArrayList<EffectBonus> effectPotionBonusesGenerate = new ArrayList<>();
         EffectentCondition bonus = new EffectentCondition(effectPotionBonusesGenerate);
         for (ConfigPotionEffectParam potionEffectParam : configPotionEffectParams) {
@@ -234,12 +230,12 @@ public class EffectentCondition extends Condition {
                 '}';
     }
 
-    public static PotionEffectType getMaterialFromString(String errorMSG,String itemName) throws NotExistMaterialException {
+    public static PotionEffectType getMaterialFromString(String errorMSG,String itemName) throws NotExistObjectFromStringException {
         PotionEffectType object;
         try {
             object = Objects.requireNonNull(PotionEffectType.getByName(itemName.toUpperCase(Locale.ROOT)));
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new  NotExistMaterialException(errorMSG, e);
+            throw new NotExistObjectFromStringException(errorMSG, e);
         }
         return object;
     }

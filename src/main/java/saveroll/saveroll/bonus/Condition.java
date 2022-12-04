@@ -1,12 +1,20 @@
 package saveroll.saveroll.bonus;
 
 import org.bukkit.entity.Player;
-import saveroll.errors.NotExistMaterialException;
+import org.jetbrains.annotations.NotNull;
+import saveroll.errors.NotExistObjectFromStringException;
 import saveroll.errors.NotMatchPatternException;
+import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
 
+import java.util.List;
 import java.util.Locale;
 
 public abstract class Condition {
+
+    protected static final char REQUIED_SIGN = '*';
+    protected static final char BAN_SIGN = '!';
+
+    private static final String IMPORTANCE_FLAG = "^([*!]?)";
     public interface plagEnum<T> {
         T getByName(String string);
     }
@@ -21,12 +29,12 @@ public abstract class Condition {
 
     public abstract int calculateRoll(Player player);
 
-    public static <T extends Enum<T>> T getMaterialFromString(String errorMSG,String itemName, Class<T> enumClass) throws NotExistMaterialException {
+    public static <T extends Enum<T>> T getObjectFromString(String itemName, Class<T> enumClass) throws NotExistObjectFromStringException {
         T object;
         try {
             object = Enum.valueOf(enumClass,itemName.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new  NotExistMaterialException(errorMSG, e);
+            throw new NotExistObjectFromStringException(itemName);
         }
         return object;
     }
@@ -37,7 +45,17 @@ public abstract class Condition {
         }
     }
 
+    @FunctionalInterface
+    interface CallbackCondition<T> {
+        T run(String objectString);
+    }
 
+//    protected static <T> void generateObjectFromText(@NotNull List<String> objectsInString, CallbackCondition<T> callbackCondition, @NotNull List<ImportanceLevelObject<T>> resultObject) {
+//        for (String stringObject : objectsInString) {
+//            if(stringObject == null) continue;
+//
+//        }
+//    }
     public String getName() {
         return name;
     }

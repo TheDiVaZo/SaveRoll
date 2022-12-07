@@ -1,22 +1,37 @@
 package saveroll.saveroll.bonus;
 
+import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.nbtapi.NbtApiException;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import saveroll.errors.NotExistObjectFromStringException;
-import saveroll.errors.NotMatchPatternException;
+import saveroll.saveroll.importancelevelobject.BanLevelObject;
 import saveroll.saveroll.importancelevelobject.ImportanceLevelObject;
+import saveroll.saveroll.importancelevelobject.NeutralLevelObject;
+import saveroll.saveroll.importancelevelobject.RequireLevelObject;
+import saveroll.util.MatcherWrapper;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 public abstract class Condition {
 
-    protected static final char REQUIED_SIGN = '*';
-    protected static final char BAN_SIGN = '!';
+    protected static final MatcherWrapper REQUIED_SIGN = new MatcherWrapper(Pattern.compile("^\\*"));
+    protected static final MatcherWrapper BAN_SIGN = new MatcherWrapper(Pattern.compile("^\\!"));
 
-    private static final String IMPORTANCE_FLAG = "^([*!]?)";
-    public interface plagEnum<T> {
-        T getByName(String string);
+    public static final MatcherWrapper IMPORTANCE_FLAG = new MatcherWrapper(Pattern.compile("^([\\*\\!]?)"));
+
+    protected static String NBTTagToString(@Nullable Object nbtTag) throws NbtApiException {
+        if(Objects.isNull(nbtTag)) return null;
+        return nbtTag.toString();
+    }
+
+    public static <T> void addWithImportanceLevel(String format, T object, List<ImportanceLevelObject<T>> importanceLevelObjectList) {
+        if(REQUIED_SIGN.find(format)) importanceLevelObjectList.add(new RequireLevelObject<>(object));
+        else if(BAN_SIGN.find(format)) importanceLevelObjectList.add(new BanLevelObject<>(object));
+        else importanceLevelObjectList.add(new NeutralLevelObject<>(object));
     }
 
     protected final String name;
@@ -34,15 +49,9 @@ public abstract class Condition {
         try {
             object = Enum.valueOf(enumClass,itemName.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new NotExistObjectFromStringException(itemName);
+            throw new NotExistObjectFromStringException("Неправельное название объекта \""+ itemName +"\". Пожалуйста, перепроверьте конфиг на наличие опечаток.");
         }
         return object;
-    }
-
-    public static void isStringMatchFormat( String string, String regex ) throws NotMatchPatternException {
-        if(!string.matches(regex)) {
-            throw new NotMatchPatternException(string + " не соответствует формату "+regex+". Проверьте слово на наличие опечаток.");
-        }
     }
 
     @FunctionalInterface

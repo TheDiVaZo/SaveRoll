@@ -11,7 +11,9 @@ import saveroll.saveroll.chat.ChatManager;
 import saveroll.saveroll.config.ConfigManager;
 import saveroll.saveroll.roll.Roll;
 import saveroll.saveroll.roll.RollManager;
+import saveroll.util.MatcherWrapper;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @CommandAlias("dice")
@@ -44,6 +46,7 @@ public class UserCommand extends BaseCommand {
                 return;
             }
             Roll roll = rollManager.getRolls().get(rollName);
+            Logger.debug(Objects.isNull(roll) + " <- roll is null");
             ChatManager.sendChatMessage(player, PlaceholderAPI.setPlaceholders(player, replaceTextRoll(player, roll)), configManager.getDistanceVisibleRoll());
         } catch (Exception e) {
             ChatManager.sendPrivateMessage(player, "&cОшибка при выполнении команды: &e"+e.getMessage());
